@@ -8,9 +8,13 @@ import React from 'react'
 // import { useRouter } from 'next/navigation'
 
 
-async  function Answers({params}:{params:{qId:string;}}) {
-    console.log(params.qId,"params")
-    const qId = params.qId as Id<"Questions">
+async  function Answers({
+  params,
+}: {
+  params: Promise<{ qId: string }>
+}) {
+  const slug = (await params).qId
+  const qId = slug as Id<"Questions">
     const answers = await fetchQuery(api.answers.get,{qId })
     const question = await fetchQuery(api.questions.getById,{qId})
    
