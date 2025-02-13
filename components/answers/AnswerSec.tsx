@@ -1,5 +1,4 @@
 "use client"
-import { Id } from "@/convex/_generated/dataModel";
 import React, { useState } from "react";
 import {
   Card,
@@ -11,29 +10,9 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { Minus, Plus } from "lucide-react";
-type Props = {
-  ans: {
-    _id: Id<"Answers">;
-    _creationTime: number;
-    title: string;
-    type: {
-      typeWithName: {
-        _id: Id<"Types">;
-        _creationTime: number;
-        name: string;
-        sort_order: number;
-      };
-      _id: Id<"Ans_Types">;
-      _creationTime: number;
-      reference?: string | undefined;
-      a_id: Id<"Answers">;
-      type_id: Id<"Types">;
-      content: string;
-    }[];
-  };
-};
+import { AnsProps } from "@/types";
 
-function AnswerSec({ ans }: Props) {
+function AnswerSec({ ans }: AnsProps) {
     const [readMore, setReadMore]=useState(false)
     
     const types = readMore ? ans.type : ans.type.slice(0,2)

@@ -1,86 +1,106 @@
 type Props = {
-    title: string;
-    id: Id<"Questions">;
-   style?:string;
-  };
+  title: string;
+  id: Id<"Questions">;
+  style?: string;
+  index: number;
+  ans: AnswerType
+};
 
-  import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { AnsProps, AnswerType } from "@/types";
+import { useQuery } from "convex/react";
+import { ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+
+function QuestionCard({ title, id, style, index, ans }: Props) {
   
-  function QuestionCard({
-    title,
-   id,
-    style
-  }: Props) {
-    //a profile page for name + year.
+  const typeNames = ans.type.map(type=> type.typeWithName.name)
+  const [show, setShow] = useState(false);
+
+
+
+  const [selectedType, setSelectedType] = useState("مختصر جواب");
+  const types = useQuery(api.types.get);
+
+  const iconStyle =
+    "bg-primary rounded-full self-center my-auto mr-auto transition-transform duration-300";
   
-    return (
-      <div className="flex h-[100%] flex-col " >
-        <Link href={`/answers/${id}`}>
-          <Card 
-        
-          className={" rounded-sm  hover:cursor-pointer h-full   shadow-sm hover:shadow-inner flex flex-col "+style}>
-        
-              <div>
-                <CardHeader className="mt-0">
-                  <CardTitle className="font-cinzel text-xl font-semibold justify-end flex  ">
-                    {title}
-                  </CardTitle>
-                  <CardDescription className="text-xs ">
-                    <span>
-                    </span>
-  
-                    {/* <span>{shortDesc}</span> */}
-                  </CardDescription>
-                </CardHeader>
-                {/* <CardContent className="flex gap-4 flex-col">
-                  <p className="text-sm font-medium text-ellipsis overflow-hidden">
-                    {shortDesc}
-                  </p>
-                  <div className="flex md:flex-row-reverse flex-col gap-4 md:gap-0 justify-between w-full   ">
-                    <div className="flex flex-col">
-                      <span className="text-xs  font-[400] pb-[4px]  ">
-                        Seeking teammates eager to contribute or learn in:
-                        <br />
-                      </span>
-                      <span className="text-sm font-extralight italic">
-                        {lookingFor}
-                      </span>
-                    </div>
-  
-                    <div className="flex flex-col">
-                      <span className="text-xs font-[500] pb-[4px]  ">
-                        {" "}
-                        Collab:
-                      </span>
-                      <span className="text-sm font-extralight italic md:self-end mt-auto">
-                        {" "}
-                        {meetingFormat}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent> */}
+  const content =                   ans.type.filter((t)=> t.typeWithName.name === selectedType)
+  console.log(content,"c")
+  return (
+    <div className="flex h-[100%] flex-col">
+      <Card
+        className={
+          "rounded-sm hover:cursor-pointer h-full  flex flex-col font-light shadow-none" +
+          style
+        }
+      >
+        <div>
+          <CardHeader className="mt-0 flex flex-row-reverse justify-between">
+            <CardTitle className="flex-row-reverse gap-2 flex font-normal text-2xl">
+              <div className="flex self-center items-center justify-center w-[18px] h-[18px] rounded-full text-xs text-white bg-primary">
+                {index}
               </div>
-            
-            {/* <CardFooter className="flex md:flex-row flex-col gap-2  justify-between">
-              <div className="flex gap-2">{btn && btn}</div>
-              <div className="mt-auto ">
-                <span className=" text-xs italic self-end mt-auto">
-                  Click for more details
+              <span className="flex gap-[2px] text-primary">
+                <span>:</span> سوال
+              </span>
+              <div className="flex text-dark">{title}</div>
+            </CardTitle>
+            <button onClick={() => setShow(!show)} className="p-2">
+              <ChevronDown
+                className={`transition-transform duration-300 ${show ? "rotate-180" : "rotate-0"} ${iconStyle}`}
+                size={16}
+                color="white"
+              />
+            </button>
+          </CardHeader>
+
+          {/* Transition for expanding content */}
+          <div
+            className={`transition-all duration-500 ease-in-out overflow-hidden ${
+              show ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <CardContent className="gap-2 text-lg flex flex-col">
+              <div className="w-full p-2 bg-secondaryLight rounded-sm py-1 text-lg flex flex-row-reverse gap-4">
+                {types?.map((t, i) => (
+                  <div
+                  onClick={()=>setSelectedType(t.name)}
+                    className={` ${selectedType == t.name?"underline":""} flex gap-4 underline-offset-2 text-grayDark justify-center items-center active:underline `}
+                    key={i}
+                  >
+                    <span className="focus:underline underline-grayDark">
+                      {t.name}
+                    </span>
+                    {i !== 0 ? (
+                      <div className="rounded-full size-[4px] bg-grayDark"></div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+              <div className="bg-hover p-4 rounded-sm text-grayMid text-right text-lg">
+                <span className="leading-8">
+                  {content[0]?.content}
+                </span>
+                <span className="text-dark underline-offset-auto underline">
+                  دیکھیے تفصیل مفسرین کی زبانی
                 </span>
               </div>
-            </CardFooter> */}
-                      </Card>
-        </Link>
-      </div>
-    );
-  }
-  
-  export default QuestionCard;
-  
+            </CardContent>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export default QuestionCard;

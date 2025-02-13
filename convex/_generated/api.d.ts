@@ -15,6 +15,9 @@ import type {
 } from "convex/server";
 import type * as answers from "../answers.js";
 import type * as questions from "../questions.js";
+import type * as surahs from "../surahs.js";
+import type * as topics from "../topics.js";
+import type * as types from "../types.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -27,6 +30,9 @@ import type * as questions from "../questions.js";
 declare const fullApi: ApiFromModules<{
   answers: typeof answers;
   questions: typeof questions;
+  surahs: typeof surahs;
+  topics: typeof topics;
+  types: typeof types;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

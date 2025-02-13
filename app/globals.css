@@ -4,35 +4,15 @@
 
 /* To change the theme colors, change the values below
   or use the "Copy code" button at https://ui.shadcn.com/themes */
-
+/* 
 
   @layer base {
     :root {
-      --background: 0 0% 100%;
-      --foreground: 240 10% 3.9%;
-      --card: 0 0% 100%;
-      --card-foreground: 240 10% 3.9%;
-      --popover: 0 0% 100%;
-      --popover-foreground: 240 10% 3.9%;
-      --primary: 142.1 76.2% 36.3%;
-      --primary-foreground: 355.7 100% 97.3%;
-      --secondary: 240 4.8% 95.9%;
-      --secondary-foreground: 240 5.9% 10%;
-      --muted: 240 4.8% 95.9%;
-      --muted-foreground: 240 3.8% 46.1%;
-      --accent: 240 4.8% 95.9%;
-      --accent-foreground: 240 5.9% 10%;
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 98%;
-      --border: 240 5.9% 90%;
-      --input: 240 5.9% 90%;
-      --ring: 142.1 76.2% 36.3%;
-      --radius: 0.3rem;
-      --chart-1: 12 76% 61%;
-      --chart-2: 173 58% 39%;
-      --chart-3: 197 37% 24%;
-      --chart-4: 43 74% 66%;
-      --chart-5: 27 87% 67%;
+      --background: "#F6F7F9";
+    
+      --primary: "#159E86";
+      --text-primary: "#184F46"
+      
     }
   
     .dark {
@@ -61,13 +41,43 @@
       --chart-4: 280 65% 60%;
       --chart-5: 340 75% 55%;
     }
+  } */
+  .scrollbar-left {
+    direction: rtl; /* Flips the scrollbar to the left */
+    text-align: left; /* Resets text alignment */
   }
   
+  .scrollbar-left * {
+    direction: ltr; /* Ensures content inside remains normal */
+  }
+  .scrollbar-left::-webkit-scrollbar {
+    width: 1px; /* Adjust thickness */
+    background-color: white ;
+  }
+  
+  .scrollbar-left::-webkit-scrollbar-thumb {
+    background: #ffff; /* Scrollbar color */
+    border-radius: 10px; /* Rounded corners */
+  }
+  
+  .scrollbar-left::-webkit-scrollbar-thumb:hover {
+    background: #2d3748; /* Darker shade on hover */
+  }
+  
+  .scrollbar-left::-webkit-scrollbar-track {
+    background: #edf2f7; /* Track color */
+  }
+  
+  .scrollbar-left {
+    scrollbar-color: #FFB536 #ffff; /* Firefox */
+    scrollbar-width: thin;
+  }
 @layer base {
   * {
-    @apply border-border;
+    
+    /* @apply border-border; */
   }
   body {
-    @apply bg-background text-foreground;
+    /* @apply bg-background text-foreground; */
   }
 }

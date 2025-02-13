@@ -33,6 +33,17 @@ Ans_Types: defineTable({
   "reference": v.optional(v.string())   
 
 
-}).index("by_aId",["a_id"])
+}).index("by_aId",["a_id"]), 
+Topics: defineTable({
+  topic:v.string(), 
+}), 
+Topic_Ques: defineTable({
+  "t_id": v.id("Topics"),
+  "q_id":v.id("Questions")
+}).index("by_tId",["t_id"]),
+Surahs: defineTable({
+  name: v.string(),
+  surah: v.string(),
+}),
 
 });

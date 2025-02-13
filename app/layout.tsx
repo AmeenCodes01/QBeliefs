@@ -4,7 +4,14 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Header from "@/components/Header";
+import localFont from 'next/font/local'
+import ConvexClientProvider from "@/components/ConvexClientProvider";
 
+
+const myFont = localFont({
+  src: './font.ttf',
+  display: 'swap',
+})
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -14,21 +21,30 @@ export default function RootLayout({
     // `suppressHydrationWarning` only affects the html tag,
     // and is needed by `ThemeProvider` which sets the theme
     // class attribute on it
-    <html lang="en" suppressHydrationWarning={true}>
-      <body className="antialiased h-screen flex flex-col ">
-        <ThemeProvider attribute="class">
-          <div className="flex-1 flex flex-col ">
-            <Header />
-            <div className="px-4 py-2 flex-1 overflow-auto flex-col w-full    ">
-              <div className="flex-1  justify-center items-center w-full flex flex-col">
-                <div className="px-4 py-2 flex-1 overflow-auto w-full  max-w-7xl justify-center ">
-                  {children}
-                </div>
-              </div>
+    <html lang="en" suppressHydrationWarning={true} className={myFont.className}>
+  <body className="antialiased h-screen flex flex-col ">
+    <ConvexClientProvider>
+      <ThemeProvider attribute="class">
+
+        {/* Layout Container */}
+        <div className="flex flex-col h-screen overflow-hidden">
+          
+          {/* Sticky Header */}
+          <Header  />
+
+          {/* Main Content (Scrollable) */}
+          <div className="flex flex-1 overflow-hidden justify-center">
+            <div className="flex flex-1 flex-col px-4 py-2 max-w-7xl  overflow-hidden">
+              {children}
             </div>
           </div>
-        </ThemeProvider>
-      </body>
-    </html>
+
+        </div>
+
+      </ThemeProvider>
+    </ConvexClientProvider>
+  </body>
+</html>
+
   );
 }

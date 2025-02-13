@@ -1,28 +1,35 @@
 "use client";
 import React, {useState} from "react";
 import {Search, Code} from "lucide-react";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import QuestionCard from "./QuestionCard";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 // import InterestBtn from "@/app/components/InterestBtn";
 // import IdeaCard from "@/app/components/IdeaCard";
 
 function QuestionsList({
-  qArr,
+  topicId,
 }: {
-  qArr: (Doc<"Questions">[]) }
+  topicId: Id<"Topics"> }
 ) {
+  console.log(topicId,"topicId")
   const [search, setSearch] = useState("");
   let filter = "all";
 
+  const qArr = useQuery(api.questions.getByTopic,{topicId})
+
+
   const filteredQues =
     search !== ""
-      ? qArr.filter((idea) =>
+      ? qArr?.filter((idea) =>
           idea.title.toLowerCase().includes(search.toLowerCase())
         )
       : qArr;
 
+      console.log(qArr,"qA")
   return (
-    <div>
+    <div className="flex overflow-auto flex-col">
       <div className="flex gap-4 mb-10">
         <div className="flex-1 relative">
           <Search
@@ -54,16 +61,16 @@ function QuestionsList({
 
       {/* rows messed up with header, cols does not.  */}
       <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  justify-center md:justify-normal items-center pb-4  ">
-        {filteredQues.length !== 0
-          ? filteredQues.map((q, i: number) => (
-              <QuestionCard
+        {filteredQues?.length !== 0
+          ? filteredQues?.map((q, i: number) => (
+            <QuestionCard
                 key={q._creationTime}
                 id={q._id}
-
+                index={i}
                 title={q.title}
-               
+                ans={q.ans[0]}
                 
-              />
+                />
             ))
           : null}
       </div>
