@@ -22,7 +22,7 @@ export default function RootLayout({
     // and is needed by `ThemeProvider` which sets the theme
     // class attribute on it
     <html lang="en" suppressHydrationWarning={true} className={myFont.className}>
-  <body className="antialiased h-screen flex flex-col ">
+  <body className="antialiased h-screen flex flex-col bg-hover">
     <ConvexClientProvider>
       <ThemeProvider attribute="class">
 
@@ -34,7 +34,7 @@ export default function RootLayout({
 
           {/* Main Content (Scrollable) */}
           <div className="flex flex-1 overflow-hidden justify-center">
-            <div className="flex flex-1 flex-col px-4 py-2 max-w-7xl  overflow-hidden">
+            <div className="flex flex-1 flex-col max-w-7xl  overflow-hidden">
               {children}
             </div>
           </div>

@@ -3,11 +3,11 @@ import React from 'react'
 
 function Header() {
   return (
-    <div className='w-full px-4 py-4 flex justify-start text-center border-[1px]
-    sticky top-0 z-50  bg-white shadow-md
+    <div className='w-full px-4 py-4 flex    bg-dark
+    sticky top-0 z-50 text-right justify-end
     '> 
     <Link href={"/"}>
-      <h1 className='text-2xl font-bold '>Quranic Beliefs</h1>
+      <h1 className='text-2xl text-white ml-auto  '>مختلف قرآنی تفاسیر سے  ماخوذ سوالات و جوابات </h1>
     </Link>
     </div>
   )
