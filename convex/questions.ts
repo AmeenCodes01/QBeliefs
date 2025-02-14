@@ -7,7 +7,6 @@ import {
     getManyVia,
     getAllOrThrow,
   } from "convex-helpers/server/relationships";
-  import { action } from "./_generated/server";
 import { asyncMap } from "convex-helpers";
 import { getAns } from "./answers";
 
@@ -42,10 +41,13 @@ export const getByTopic = query({
     
   const t_q = await getManyFrom(ctx.db,"Topic_Ques","by_tId", args.topicId,"t_id" )
       const quesId = t_q.map((r) => r.q_id);
+
       const questions = await getAllOrThrow(ctx.db,quesId);
       const quesAns =await asyncMap(questions.filter(Boolean), async(ques)=>{
          const ans = await getAns(ctx, ques._id)
-         return {...ques, ans}
+         const surahQues = await getManyFrom(ctx.db,"Surah_Ques","q_id", ques._id)
+         const surahIds = surahQues.map(u=>u.s_id)
+         return {...ques, ans, surahIds}
       })
       console.log(quesAns)
   

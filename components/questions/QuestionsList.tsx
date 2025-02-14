@@ -5,6 +5,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import QuestionCard from "./QuestionCard";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useStore } from "@/lib/useStore";
 // import InterestBtn from "@/app/components/InterestBtn";
 // import IdeaCard from "@/app/components/IdeaCard";
 
@@ -16,18 +17,28 @@ function QuestionsList({
   console.log(topicId,"topicId")
   const [search, setSearch] = useState("");
   let filter = "all";
-
+  const surahId = useStore(state=>state.surahId)
   const qArr = useQuery(api.questions.getByTopic,{topicId})
 
 
-  const filteredQues =
-    search !== ""
-      ? qArr?.filter((idea) =>
-          idea.title.toLowerCase().includes(search.toLowerCase())
-        )
-      : qArr;
+  const filteredQues = qArr?.filter((ques) => {
+    let surahMatch = true;
+    let searchMatch = true;
+  
+    if (surahId) {
+      surahMatch = ques.surahIds.includes(surahId);
+    }
+  
+    if (search !== "") {
+      searchMatch = ques.title.toLowerCase().includes(search.toLowerCase());
+    }
+  
+    return surahMatch && searchMatch;
+  });
 
-      console.log(qArr,"qA")
+    
+
+
   return (
     <div className="flex overflow-auto flex-col">
       <div className="flex gap-4 mb-10">

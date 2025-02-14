@@ -22,7 +22,7 @@ Q_A: defineTable({
   q_id: v.id("Questions"),
 }).index("by_qId", ["q_id"]).index("by_aId", ["a_id"])
 ,
-Types: defineTable({
+Types: defineTable({  
   "name":v.string(), 
   "sort_order": v.number(),
 }),
@@ -45,5 +45,8 @@ Surahs: defineTable({
   name: v.string(),
   surah: v.string(),
 }),
-
+Surah_Ques: defineTable({
+"s_id":v.id("Surahs"), 
+"q_id":v.id("Questions")
+}).index("q_id",["q_id"])
 });

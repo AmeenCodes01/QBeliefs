@@ -12,13 +12,13 @@ async function page() {
       <Tabs defaultValue={topics[0].topic} className="w-[85%] overflow-auto scrollbar-left ">
         <TabsList className="w-full  items-start overflow-x-auto h-fit gap-5 flex flex-row-reverse justify-start  text-xl  bg-primary text-white rounded-md ">
           {topics.map((topic) => (
-            <TabsTrigger value={topic.topic} className="text-2xl">
+            <TabsTrigger value={topic.topic} className="text-2xl" key={topic._id}>
               {topic.topic}
             </TabsTrigger>
           ))}
         </TabsList>
         {topics.map((topic) => (
-          <TabsContent value={topic.topic} className="flex-1 overflow-auto">
+          <TabsContent value={topic.topic} className="flex-1 overflow-auto"  key={topic._id}>
             <QuestionsList topicId={topic._id} />
 
             {/* map over the topics and the quesArr in here but with ques. first, model some data with topics type.  */}
