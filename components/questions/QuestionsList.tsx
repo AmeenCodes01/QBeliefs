@@ -74,7 +74,7 @@ const onOpenToggle=(i:number|null)=>setShowIndex(i)
       {/* rows messed up with header, cols does not.  */}
       <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
         {filteredQues?.length !== 0
-          ? filteredQues?.concat(filteredQues)?.map((q, i: number) => (
+          ? filteredQues?.map((q, i: number) => (
             <>
             <QuestionCard
                 key={q._creationTime}

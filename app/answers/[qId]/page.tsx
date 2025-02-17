@@ -25,7 +25,7 @@ async  function Answers({
     }
   return (
     <div className="w-full h-[100%] gap-4 flex flex-col mx-auto pt-8 relative">
-  <h1 className="text-center text-2xl tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
+  <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
     {question?.title}
   </h1>
   {answers?.map((a) => (

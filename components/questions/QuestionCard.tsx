@@ -20,7 +20,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { AnsProps, AnswerType } from "@/types";
 import { useQuery } from "convex/react";
-import { ArrowUp, ChevronDown, ChevronUp } from "lucide-react";
+import {  ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 

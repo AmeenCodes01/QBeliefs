@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,31 +12,51 @@ import { Button } from "../ui/button";
 import { Minus, Plus } from "lucide-react";
 import { AnsProps } from "@/types";
 
+
 function AnswerSec({ ans }: AnsProps) {
-    const [readMore, setReadMore]=useState(false)
-    
+    const [readMore, setReadMore]=useState(true)
     const types = readMore ? ans.type : ans.type.slice(0,2)
+    useEffect(() => {
+      const url = window.location.href;
+      const hashIndex = url.indexOf("#");
+  
+      if (hashIndex !== -1) {
+        const encodedId = url.substring(hashIndex + 1);
+        const id = decodeURIComponent(encodedId); // Decode Urdu text
+  
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+          element.classList.add("bg-[#FFFCE7]");
+  
+          setTimeout(() => {
+            element.classList.remove("bg-[#FFFCE7]");
+          }, 2000);
+        }
+      }
+    },[])
+
   return (
-    <Card className="w-full justify-start flex flex-col font-serif ">
-      <CardHeader>
-        <CardTitle className="text-right text-2xl"> {ans.title}</CardTitle>
+    <Card className="w-full h-full overflow-auto justify-start flex flex-col scrollbar-left ">
+      <CardHeader className="">
+        <CardTitle className="text-right text-xl md:text-2xl text-dark"> {ans.title}</CardTitle>
         {/* <CardDescription>
             Deploy your new project in one-click.
           </CardDescription> */}
       </CardHeader>
       <CardContent>
       <div
-          className={`transition-all duration-700 ease-in overflow-hidden ${
+          className={`transition-all duration-700 ease-in overflow-auto  ${
             readMore ? "max-h-[1000px]" : "max-h-[200px]"
           }`}
         >
         {types.map((type) => (
-          <div key={type._creationTime} className="ml-auto w-fit" id={type.typeWithName.name}>
+          <div key={type._creationTime} className="bg-hover h-full  transition-all  w-full p-4 rounded-md text-black text-right " id={type.typeWithName.name}>
             <h1
-              className="font-black
+              className="  w-full
             my-2
-             self-start w-fit ml-auto
-            underline
+             self-start text-right  ml-auto
+            underline  md:text-2xl text-xl underline-offset-2
           "
             >
               {type.typeWithName.name}
@@ -44,13 +64,13 @@ function AnswerSec({ ans }: AnsProps) {
             <p
               className=" self-start w-fit ml-auto  
             items-start leading-9 tracking-widest flex text-right
-            text-xl font-extralight
+            md:text-2xl text-xl font-extralight text-grayDark
             "
             >
               {type.content}
             </p>
-            <span className="text-md pt-2 text-accent-foreground opacity-80 text-left">
-              {type.reference}
+            <span className="text-lg pt-2 text-accent-foreground opacity-80 text-left w-full mr-auto">
+             ( {type.reference} ) 
             </span>
           </div>
         ))}
@@ -58,7 +78,7 @@ function AnswerSec({ ans }: AnsProps) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button className="justify-center flex" onClick={()=> setReadMore(prev=>!prev)}>Show {readMore ?"less ":"more"} {readMore? <Minus/>:<Plus/>} </Button>
+        {/* <Button className="justify-center flex" onClick={()=> setReadMore(prev=>!prev)}>Show {readMore ?"less ":"more"} {readMore? <Minus/>:<Plus/>} </Button> */}
       </CardFooter>
     </Card>
   );

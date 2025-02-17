@@ -9,9 +9,9 @@ async function page() {
   const topics = await fetchQuery(api.topics.get);
   return (
     <div className="w-full  h-full flex mx-auto min-h-0 md:p-4 p-2 ">
-    <Tabs defaultValue={topics[0].topic} className="w-full flex flex-col h-full gap-2">
+    <Tabs defaultValue={topics[0].topic} className="w-full flex flex-col h-full gap-2 ">
       {/* Sticky Tabs List */}
-      <TabsList className="w-full sticky top-0 z-10 bg-primary text-white rounded-sm flex overflow-x-auto h-fit md:gap-5 gap-2 flex-row-reverse justify-start text-xl">
+      <TabsList className="w-full sticky top-0 z-10 bg-primary text-white md:rounded-sm md:flex overflow-x-auto h-fit md:gap-5 gap-2 grid grid-cols-2 rounded-md  md:flex-row-reverse justify-start text-xl">
         {topics.map((topic) => (
           <TabsTrigger value={topic.topic} className=" text-xl md:text-2xl" key={topic._id}>
             {topic.topic}

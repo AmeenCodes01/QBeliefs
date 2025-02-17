@@ -31,7 +31,6 @@ export const get = query({
   handler: async (ctx, { qId }) => {
 
     const result = await getAns(ctx,qId)
-    console.log(result)
     return result
     // get all answers
     // const q_a = await getManyFrom(db, "Q_A", "by_qId", qId, "q_id");
