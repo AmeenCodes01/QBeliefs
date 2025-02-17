@@ -32,6 +32,7 @@ export const get = query({
 
     const result = await getAns(ctx,qId)
     console.log(result)
+    return result
     // get all answers
     // const q_a = await getManyFrom(db, "Q_A", "by_qId", qId, "q_id");
     // const ansId = q_a.map((r) => r.a_id);

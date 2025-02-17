@@ -31,7 +31,7 @@ function AnswerSec({ ans }: AnsProps) {
           }`}
         >
         {types.map((type) => (
-          <div key={type._creationTime} className="ml-auto w-fit">
+          <div key={type._creationTime} className="ml-auto w-fit" id={type.typeWithName.name}>
             <h1
               className="font-black
             my-2

@@ -34,7 +34,7 @@ export default function RootLayout({
 
           {/* Main Content (Scrollable) */}
           <div className="flex flex-1 overflow-hidden justify-center">
-            <div className="flex flex-1 flex-col max-w-7xl  overflow-hidden">
+            <div className="flex flex-1 flex-col   overflow-hidden">
               {children}
             </div>
           </div>

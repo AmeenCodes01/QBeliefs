@@ -7,7 +7,7 @@ function Header() {
     sticky top-0 z-50 text-right justify-end
     '> 
     <Link href={"/"}>
-      <h1 className='text-2xl text-white ml-auto  '>مختلف قرآنی تفاسیر سے  ماخوذ سوالات و جوابات </h1>
+      <h1 className=' text-xl md:text-2xl text-white ml-auto  '>مختلف قرآنی تفاسیر سے  ماخوذ سوالات و جوابات </h1>
     </Link>
     </div>
   )

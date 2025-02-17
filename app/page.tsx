@@ -8,31 +8,40 @@ import Sidebar from "@/components/surahs/sidebar";
 async function page() {
   const topics = await fetchQuery(api.topics.get);
   return (
-    <div className=" w-full h-full flex flex-row  mx-auto min-h-0   px-4 py-4 ">
-      <Tabs defaultValue={topics[0].topic} className="w-[85%] overflow-auto scrollbar-left ">
-        <TabsList className="w-full  items-start overflow-x-auto h-fit gap-5 flex flex-row-reverse justify-start  text-xl  bg-primary text-white rounded-md ">
-          {topics.map((topic) => (
-            <TabsTrigger value={topic.topic} className="text-2xl" key={topic._id}>
-              {topic.topic}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-       
+    <div className="w-full  h-full flex mx-auto min-h-0 md:p-4 p-2 ">
+    <Tabs defaultValue={topics[0].topic} className="w-full flex flex-col h-full gap-2">
+      {/* Sticky Tabs List */}
+      <TabsList className="w-full sticky top-0 z-10 bg-primary text-white rounded-sm flex overflow-x-auto h-fit md:gap-5 gap-2 flex-row-reverse justify-start text-xl">
         {topics.map((topic) => (
-          <TabsContent value={topic.topic} className="flex-1  overflow-auto bg-white py-4 px-2 rounded-sm"  key={topic._id}>
-            <QuestionsList topicId={topic._id} />
-
-            {/* map over the topics and the quesArr in here but with ques. first, model some data with topics type.  */}
-          </TabsContent>
+          <TabsTrigger value={topic.topic} className=" text-xl md:text-2xl" key={topic._id}>
+            {topic.topic}
+          </TabsTrigger>
         ))}
-
-        
-      </Tabs>
-      <div className="hidden md:block w-[15%] h-full pl-4 overflow-y-auto flex-1 bg-white ">
-  <Sidebar />
-</div>
-      {/* <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6"></div> */}
-    </div>
+      </TabsList>
+  
+      {/* Main Content Wrapper */}
+      <div className="flex md:flex-row flex-col-reverse w-full flex-1 bg-white overflow-hidden">
+        {/* Tabs Content (Left Side - 85%) */}
+        <div className="md:w-[80%] h-[95%] w-full md:h-full flex-1">
+          {topics.map((topic) => (
+            <TabsContent
+              value={topic.topic}
+              className="h-full flex-1 w-full overflow-auto py-4 px-2 rounded-sm scrollbar-left"
+              key={topic._id}
+            >
+              <QuestionsList topicId={topic._id} />
+            </TabsContent>
+          ))}
+        </div>
+  
+        {/* Sidebar (Right Side - 15%) */}
+        <div className=" md:w-[20%]  md:h-full h-[5%] md:pl-4 overflow-auto bg-white flex md:block">
+          <Sidebar />
+        </div>
+      </div>
+    </Tabs>
+  </div>
+  
   );
 }
 
