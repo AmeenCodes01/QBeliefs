@@ -1,52 +1,54 @@
-# Welcome to your Convex + Next.js app
+create function for Topic,Question,Answer,Type. 
 
-This is a [Convex](https://convex.dev/) project created with [`npm create convex`](https://www.npmjs.com/package/create-convex).
+-- topic
 
-After the initial setup (<2 minutes) you'll have a working full-stack app using:
+function check(query,label){
+    let topicId = query
+    if(query == Id){
+        return
+    }else if (query === string){
+        const topicId = await useQuery(api.topic.create)
+      } 
+    }
+    return topicId
+}
 
-- Convex as your backend (database, server logic)
-- [React](https://react.dev/) as your frontend (web page interactivity)
-- [Next.js](https://nextjs.org/) for optimized web hosting and page routing
-- [Tailwind](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/) for building great looking accessible UI fast
+async function submit(){
+    const topic = await check()
 
-## Get started
+}
 
-If you just cloned this codebase and didn't use `npm create convex`, run:
+--create a admins.ts file inside convex. 
+-- receive all of the form data there. 
 
-```
-npm install
-npm run dev
-```
+-- create a async function like check which uses ctx.db obviously.
 
-If you're reading this README on GitHub and want to use this template, run:
+-- for topic (if string & not id), just create
 
-```
-npm create convex@latest -- -t nextjs-shadcn
-```
+-- for question (if string & not Id), create, get qId & then use it to add to Surah_Ques & TopicQues
 
-## Learn more
+-- for ans, create, getId. 
 
-To learn more about developing your project with Convex, check out:
+-- for type, if new, create. getAnsId & insert in Ans_
 
-- The [Tour of Convex](https://docs.convex.dev/get-started) for a thorough introduction to Convex principles.
-- The rest of [Convex docs](https://docs.convex.dev/) to learn about all Convex features.
-- [Stack](https://stack.convex.dev/) for in-depth articles on advanced topics.
 
-## Join the community
 
-Join thousands of developers building full-stack apps with Convex:
+async function(formData){
+    let topicId, questionId, answerId, typeId, surahId
+    const topicId =await check(formData.topic, ctx, "topic")
+    const questionId = await check(formData.question, ctx, "question")
+//create question & add relation
+    const surahques = await create(qId, formData.surah, Surah_Ques);
+    const topicques = await create(qId,formData.topicId,Topic_Ques );
 
-## Deploy on Vercel
+    const ansId = await create(formData.answer)
+    const typeId = await check(formData.type)
+//create answer relations now
+    const ansType = await create(ansId, typeId, Ans_Types);
+    const ansQues = await create(ansId,qId, Q_A);
+    
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-# Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-- Join the [Convex Discord community](https://convex.dev/community) to get help in real-time.
-- Follow [Convex on GitHub](https://github.com/get-convex/), star and contribute to the open-source implementation of Convex.
+}

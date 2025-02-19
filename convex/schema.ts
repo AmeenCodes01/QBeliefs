@@ -48,5 +48,14 @@ Surahs: defineTable({
 Surah_Ques: defineTable({
 "s_id":v.id("Surahs"), 
 "q_id":v.id("Questions")
-}).index("q_id",["q_id"])
+}).index("q_id",["q_id"]),
+
+
+users: defineTable({
+  name: v.string(),
+  
+  
+  // this the Clerk ID, stored in the subject JWT field
+  externalId: v.string(),
+}).index("byExternalId", ["externalId"]),
 });
