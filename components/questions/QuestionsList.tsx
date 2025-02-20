@@ -20,7 +20,7 @@ function QuestionsList({
   let filter = "all";
   const surahId = useStore(state=>state.surahId)
   const qArr = useQuery(api.questions.getByTopic,{topicId})
-
+console.log(qArr,"qArr")
 
   const filteredQues = qArr?.filter((ques) => {
     let surahMatch = true;
@@ -77,7 +77,7 @@ const onOpenToggle=(i:number|null)=>setShowIndex(i)
           ? filteredQues?.map((q, i: number) => (
             <>
             <QuestionCard
-                key={q._creationTime}
+                key={q._}
                 id={q._id}
                 showIndex={showIndex}
                 title={q.title}

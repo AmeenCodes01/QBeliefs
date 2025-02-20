@@ -3,7 +3,6 @@ import { Doc, Id } from "./convex/_generated/dataModel";
 export type AnswerType = {
   _id: Id<"Answers">;
   _creationTime: number;
-  title: string;
   type: {
     typeWithName: {
       _id: Id<"Types">;

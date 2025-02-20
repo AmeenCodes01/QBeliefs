@@ -47,7 +47,7 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
 
 
               </FormControl>}
-{     showbtn == undefined ?     <Button className=' text-white p-4 ml-auto' onClick={()=>setShow(prev=> !prev)}>New</Button>
+{     showbtn == undefined ?     <Button type='button' className=' text-white p-4 ml-auto' onClick={()=>setShow(prev=> !prev)}>New</Button>
 :null}    <FormMessage />
   </FormItem>
   )

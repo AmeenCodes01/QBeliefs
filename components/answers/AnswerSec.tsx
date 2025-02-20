@@ -15,6 +15,7 @@ import { AnsProps } from "@/types";
 
 function AnswerSec({ ans }: AnsProps) {
     const [readMore, setReadMore]=useState(true)
+    console.log(ans)
     const types = readMore ? ans.type : ans.type.slice(0,2)
     useEffect(() => {
       const url = window.location.href;
@@ -50,8 +51,9 @@ function AnswerSec({ ans }: AnsProps) {
             readMore ? "max-h-[1000px]" : "max-h-[200px]"
           }`}
         >
-        {types.map((type) => (
-          <div key={type._creationTime} className="bg-hover h-full  transition-all  w-full p-4 rounded-md text-black text-right " id={type.typeWithName.name}>
+        {ans?.type?.map((type) => {
+          return(
+          <div key={type._creationTime} className="bg-hover h-full  transition-all  w-full p-4 rounded-md text-black text-right " id={type?.typeWithName?.name}>
             <h1
               className="  w-full
             my-2
@@ -59,7 +61,7 @@ function AnswerSec({ ans }: AnsProps) {
             underline  md:text-2xl text-xl underline-offset-2
           "
             >
-              {type.typeWithName.name}
+              {type?.typeWithName?.name}
             </h1>
             <p
               className=" self-start w-fit ml-auto  
@@ -73,7 +75,7 @@ function AnswerSec({ ans }: AnsProps) {
              ( {type.reference} ) 
             </span>
           </div>
-        ))}
+        )})}
 
         </div>
       </CardContent>

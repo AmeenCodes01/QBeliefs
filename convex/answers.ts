@@ -74,10 +74,10 @@ export const get = query({
 });
 
 export async function getAns (ctx: QueryCtx,qId:Id<"Questions">) {
-  const q_a = await getManyFrom(ctx.db, "Q_A", "by_qId", qId, "q_id");
-  const ansId = q_a.map((r) => r.a_id);
-  const answers = await getAllOrThrow(ctx.db, ansId);
-
+  // get answers Id from Answers table
+  const answers = await getManyFrom(ctx.db, "Answers", "by_qId", qId, "q_id");
+  // get all ans_types for each a_id
+  
   // get all answers of a question. then get the Ans_Types. then get all types. do the sorting manually here ?
 
   // get types of each answer. //
@@ -100,13 +100,14 @@ export async function getAns (ctx: QueryCtx,qId:Id<"Questions">) {
         const typeName = await ctx.db.get(type.type_id);
         return { ...type, typeWithName: typeName };
       });
+      console.log(typesWithName,"NamTypes")
 
-      const filteredTypesWithName = typesWithName.filter((item): item is typesWithNameType => item !== null);
-       const sortedTypes = filteredTypesWithName.sort((a, b) => { return (a.typeWithName.sort_order as number) - (b.typeWithName.sort_order as number); });
-      return { ...ans, type: sortedTypes };
+      // const filteredTypesWithName = typesWithName.filter((item): item is typesWithNameType => item !== null);
+      //  const sortedTypes = filteredTypesWithName.sort((a, b) => { return (a.typeWithName.sort_order as number) - (b.typeWithName.sort_order as number); });
+      return { ...ans,type:typesWithName };
       // const type =    await ctx.db.query("Types").withIndex("by_id")
     },
   );
-
+  console.log(answerWithTypes,"anstypesserver")
   return answerWithTypes;
 }

@@ -26,14 +26,16 @@ import { useState } from "react";
 
 function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex }: Props) {
   
-  const typeNames = ans.type.map(type=> type.typeWithName.name)
+  const typeNames = ans?.type?.map(type=> type.typeWithName.name)
 
   const [selectedType, setSelectedType] = useState("مختصر جواب");
   const types = useQuery(api.types.get);
-
-  const iconStyle ="bg-primary rounded-full self-center my-auto mr-auto transition-transform duration-300";
   
-  const content =                   ans.type.filter((t)=> t.typeWithName.name === selectedType)
+  const iconStyle ="bg-primary rounded-full self-center my-auto mr-auto transition-transform duration-300";
+  console.log( id, style, index, ans)
+
+
+  const content =                   ans?.type?.filter((t)=> t.typeWithName.name === selectedType)
   return (
     <div className="flex h-[100%] flex-col" 
     >
@@ -91,7 +93,7 @@ function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex }: 
   {/* Dynamic Height Content */}
   <Link href={`answers/${id}#${selectedType}`}>
   <div className="bg-hover w-full p-4 rounded-sm text-grayMid text-right text-lg">
-    <span className="leading-8 block">{content[0]?.content}</span>
+    <span className="leading-8 block">{content && content[0]?.content}</span>
     <span className="text-dark underline-offset-auto underline px-2">
       دیکھیے تفصیل مفسرین کی زبانی
     </span>

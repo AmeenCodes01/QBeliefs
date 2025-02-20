@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useQuery } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ItemForm from "../components/ItemForm"
 import { Doc } from "@/convex/_generated/dataModel"
@@ -24,26 +24,35 @@ import DataList from "../components/DataList"
 
 const formSchema = z.object({
   topic: z.string({
-    required_error: "Please select an topic.",
+  }).min(1, { message: "Please select an topic.",
   }),
   question: z.string({
-    required_error: "Please select an question.",
+  }).min(1, { message: "Please select an topic.",
   }),
-  answer: z.string({
-    required_error: "Please type an answer.",
-  }),
-  type: z.string({
-    required_error: "Please select the answer type or create new one.",
-  }),
-  surah: z.string({
-    required_error: "Please select surah for Question.",
+  answers: z.array(z.object(
+    {
+      text:z.string({
+    }).min(1, { message: "Please select an topic.",
+    }),
+    type:z.string({
+    }).min(1, { message: "Please select an topic.",
+    },
+  ),
+  reference: z.string({})
+  }
+  )),
+  // type:z.string({
+  // }).min(1, { message: "Please select an topic.",
+  // }),
+  surah:z.string({
+  }).min(1, { message: "Please select an topic.",
   }),
   
 })
 
 export default function ProfileForm() {
   
-
+const onCreate = useMutation(api.admin.create)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,23 +60,31 @@ export default function ProfileForm() {
       topic: "",
       question:"",
       surah:"",
-      answer:"", 
-      type:""
+       answers:[{text:"",type:"", reference:""}], 
+      // type:""
       
     },
   })
- 
-  // 2. Define a submit handler.
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
+   control: form.control, // control props comes from useForm (optional: if you are using FormProvider)
+    name: "answers", // unique name for your Field Array
+  });  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const updatedValues = { 
+      ...values, 
+      surah: values.surah as Id<"Surahs"> 
+    };
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
+    onCreate(updatedValues)
   }
 
   const topics = useQuery(api.topics.get)
   const questions = useQuery(api.questions.get)
   const surahs = useQuery(api.surahs.get)
   const types = useQuery(api.types.get)
+  
   return (
       <div className="w-full h-[600px]  flex text-md justify-start ">
 
@@ -108,24 +125,58 @@ export default function ProfileForm() {
               })}/>}/>
             )}
           />
+              {/* <FormField
+                    control={form.control}
+                  name="type"
+                    render={({ field }) => (
+                      <ItemForm field={field} label="Answer Type" datalist ={<DataList data={types as Doc<"Types">[]} mapFn={(q) => ({
+                        value: q._id, 
+                        label: q.name,
+                      })}/>}/>
+                    )}
+                  /> */}
+          {fields.map((field, index) => (
+  <div key={field.id} className="flex gap-4 items-center">
+    {/* Text Input for Answer */}
+    <FormField
+      control={form.control}
+      name={`answers.${index}.text`}
+      render={({ field }) => (
+        <ItemForm field={field} label={`Answer ${index + 1}`} showInput={true} showbtn={false} />
+      )}
+    />
 
-        <FormField
-            control={form.control}
-            name="answer"
-            render={({ field }) => (
-              <ItemForm field={field} label="Answer" showInput={true} showbtn={false}/>
-            )}
-          /> 
-      <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <ItemForm field={field} label="Answer Type" datalist ={<DataList data={types as Doc<"Types">[]} mapFn={(q) => ({
-                value: q._id, 
-                label: q.name,
-              })}/>}/>
-            )}
+    {/* Select Input for Answer Type */}
+    <FormField
+      control={form.control}
+      name={`answers.${index}.type`}
+      render={({ field }) => (
+        <ItemForm field={field} label="Answer Type" datalist={
+          <DataList 
+            data={types as Doc<"Types">[]} 
+            mapFn={(q) => ({ value: q._id, label: q.name })}
           />
+        }/>
+      )}
+      />
+    <FormField
+      control={form.control}
+      name={`answers.${index}.reference`}
+      render={({ field }) => (
+        <ItemForm field={field} label="Answer Reference" showInput={true} showbtn={false}/>
+      )}
+    />
+
+    {/* Remove Button */}
+    <Button type="button" onClick={() => remove(index)}>Remove</Button>
+  </div>
+))}
+
+{/* Add Answer Button */}
+<Button type="button" onClick={() => append({ text: "", type: "", reference:"" })}>
+  Add Answer
+</Button>
+
           <Button type="submit">Submit</Button>
         </form>
       </Form>

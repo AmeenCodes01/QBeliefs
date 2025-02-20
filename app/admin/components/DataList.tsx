@@ -5,7 +5,7 @@ const DataList = ({
     data,
     mapFn,
   }: {
-    data: Doc<"Questions">[] | Doc<"Types">[] |Doc<"Topics">[] |Doc<"Answers">[]|Doc<"Surahs">[];
+    data: Doc<"Questions">[] | Doc<"Types">[] |Doc<"Topics">[] |Doc<"Surahs">[];
     mapFn: (item: any ) => { value: string; label: string };
   }) => {
     return(
