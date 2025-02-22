@@ -7,9 +7,15 @@ import { v } from "convex/values";
 // The schema provides more precise TypeScript types.
 export default defineSchema({
   Questions: defineTable({
-    q_no: v.number(),
+    q_no: v.optional(v.number()),
     title: v.string(),
-  }),
+    status:v.union(
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("waiting")
+
+    )
+  }).index("by_status",["status"]),
 
   Answers: defineTable({
     q_id: v.id("Questions"), // Connects to a question

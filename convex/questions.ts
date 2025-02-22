@@ -14,7 +14,7 @@ export const get = query({
   args: {},
   handler: async (ctx) => {
     
-    const questions = await ctx.db.query("Questions").order("desc").collect()
+    const questions = await getManyFrom(ctx.db,"Questions","by_status","approved")
 
     return questions
     
@@ -42,7 +42,10 @@ export const getByTopic = query({
   const t_q = await getManyFrom(ctx.db,"Topic_Ques","by_tId", args.topicId,"t_id" )
       const quesId = t_q.map((r) => r.q_id);
 
-      const questions = await getAllOrThrow(ctx.db,quesId);
+      let questions = await getAllOrThrow(ctx.db,quesId);
+      questions = questions.filter(q => q.status === "approved")
+
+
       const quesAns =await asyncMap(questions.filter(Boolean), async(ques)=>{
          const ans = await getAns(ctx, ques._id)
          const surahQues = await getManyFrom(ctx.db,"Surah_Ques","q_id", ques._id)

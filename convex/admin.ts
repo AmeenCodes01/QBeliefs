@@ -77,7 +77,9 @@ async function checkAndCreate(
         const lastQues = await ctx.db.query("Questions").order("desc").take(1);
         ID = await ctx.db.insert("Questions", {
           title: id,
-          q_no: lastQues.length > 0 ? lastQues[0].q_no + 1 : 1, // Default to 1 if no previous questions exist
+          q_no: lastQues.length > 0 ? (lastQues[0]?.q_no ?? 0)+ 1 : 1, 
+          status:"waiting"
+          // Default to 1 if no previous questions exist
         });
       }
     }
