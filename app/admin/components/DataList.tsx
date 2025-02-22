@@ -10,11 +10,11 @@ const DataList = ({
   }) => {
     return(
     
-    <SelectContent className="bg-white text-right ml-auto flex rtl">
+    <SelectContent className="bg-white  text-right ml-auto flex rtl">
       {data?.map((item) => {
         const { value, label } = mapFn(item);
         return (
-          <SelectItem key={value} value={value} className="text-right  ml-auto rtl">
+          <SelectItem key={value} value={value} className="text-right hover:bg-hover ml-auto  flex items-end justify-end rtl">
             {label}
           </SelectItem>
         );

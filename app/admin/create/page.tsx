@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ItemForm from "../components/ItemForm"
-import { Doc } from "@/convex/_generated/dataModel"
+import { Doc, Id } from "@/convex/_generated/dataModel"
 import DataList from "../components/DataList"
 
 const formSchema = z.object({
@@ -86,10 +86,10 @@ const onCreate = useMutation(api.admin.create)
   const types = useQuery(api.types.get)
   
   return (
-      <div className="w-full h-[600px]  flex text-md justify-start ">
-
+      <div className="w-full h-full flex flex-col flex-1 text-md pb-4  justify-center items-center overflow-hidden  ">
+      
       <Form {...form} >
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 flex flex-col h-full w-full max-w-7xl overflow-y-scroll">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex flex-col h-[98%] w-full overflow-auto   p-2">
         <FormField
             control={form.control}
             name="topic"
@@ -136,17 +136,16 @@ const onCreate = useMutation(api.admin.create)
                     )}
                   /> */}
           {fields.map((field, index) => (
-  <div key={field.id} className="flex gap-4 items-center">
-    {/* Text Input for Answer */}
-    <FormField
-      control={form.control}
-      name={`answers.${index}.text`}
-      render={({ field }) => (
-        <ItemForm field={field} label={`Answer ${index + 1}`} showInput={true} showbtn={false} />
-      )}
-    />
-
-    {/* Select Input for Answer Type */}
+  <div key={field.id} className="flex gap-2 flex-col  ">
+      <div className="border-[1px] flex items-center flex-col rounded-md border-primary p-2">
+        <FormField
+          control={form.control}
+          name={`answers.${index}.text`}
+          render={({ field }) => (
+            <ItemForm field={field} label={`Answer ${index + 1}`} showInput={true} showbtn={false} />
+          )}
+        />
+          
     <FormField
       control={form.control}
       name={`answers.${index}.type`}
@@ -159,6 +158,8 @@ const onCreate = useMutation(api.admin.create)
         }/>
       )}
       />
+
+    {/* Select Input for Answer Type */}
     <FormField
       control={form.control}
       name={`answers.${index}.reference`}
@@ -166,18 +167,20 @@ const onCreate = useMutation(api.admin.create)
         <ItemForm field={field} label="Answer Reference" showInput={true} showbtn={false}/>
       )}
     />
+          </div>
+    {/* Text Input for Answer */}
 
     {/* Remove Button */}
-    <Button type="button" onClick={() => remove(index)}>Remove</Button>
+    {index!== 0 && <Button type="button"  className="ml-auto bg-red-400" onClick={() => remove(index)}>Remove</Button>}
   </div>
 ))}
 
 {/* Add Answer Button */}
-<Button type="button" onClick={() => append({ text: "", type: "", reference:"" })}>
+<Button type="button" className="w-fit text-white ml-auto" onClick={() => append({ text: "", type: "", reference:"" })}>
   Add Answer
 </Button>
 
-          <Button type="submit">Submit</Button>
+          <Button className="w-[400px] ml-auto mr-auto text-lg text-white" type="submit">Submit</Button>
         </form>
       </Form>
       </div>
