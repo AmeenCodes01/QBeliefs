@@ -1,11 +1,13 @@
+"use client"
 type Props = {
   title: string;
   id: Id<"Questions">;
   style?: string;
-  index: number;
-  ans: AnswerType;
-  setShowIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  showIndex: number| null;
+  index?: number;
+  ans?: AnswerType;
+  setShowIndex?: React.Dispatch<React.SetStateAction<number | null>>;
+  showIndex?: number| null;
+  href?:string;
   
 };
 
@@ -24,29 +26,35 @@ import {  ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex }: Props) {
+function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex,href }: Props) {
   
   const typeNames = ans?.type?.map(type=> type.typeWithName.name)
 
   const [selectedType, setSelectedType] = useState("مختصر جواب");
   const types = useQuery(api.types.get);
   
-  const iconStyle ="bg-primary rounded-full self-center my-auto mr-auto transition-transform duration-300";
+  const iconStyle ="bg-primary rounded-full  self-center my-auto mr-auto transition-transform duration-300";
   console.log( id, style, index, ans)
 
 
-  const content =                   ans?.type?.filter((t)=> t.typeWithName.name === selectedType)
+  const content =ans?.type?.filter((t)=> t.typeWithName.name === selectedType)
   return (
     <div className="flex h-[100%] flex-col" 
     >
+      
+      
+     
       <Card
         className={
-          "rounded-sm hover:cursor-pointer h-full border-0 text-right flex flex-col font-light shadow-none justify-center" +
+          "rounded-sm hover:cursor-pointer h-full text-right flex flex-col font-light shadow-none justify-center " +
           style
         }
-      >
+      >  
         <div >
-          <CardHeader className="mt-0 flex flex-row-reverse"     onClick={() => setShowIndex(prev=> prev === index? null:index)}
+          {href ?
+          
+          <Link href={`${href}/${id}`}>
+             <CardHeader className="mt-0 flex flex-row-reverse"     onClick={() =>setShowIndex && index ? setShowIndex(prev=> prev === index? null:index):null}
           >
             <CardTitle className="flex-row-reverse gap-2 flex font-normal text-xl md:text-2xl">
               <div className="flex self-center items-center justify-center w-[18px] h-[18px] rounded-full text-xs text-white bg-primary">
@@ -57,14 +65,38 @@ function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex }: 
               </span>
               <div className="flex text-dark">{title} </div>
             </CardTitle>
-            <button  className="p-2 mr-auto">
+           {ans && <button  className="p-2 mr-auto">
               <ChevronDown
                 className={`transition-transform duration-300  ${showIndex===index ? "rotate-180" : "rotate-0"} ${iconStyle}`}
                 size={16}
                 color="white"
               />
-            </button>
+            </button>}
           </CardHeader>
+          </Link>:
+         
+             <CardHeader className="mt-0 flex flex-row-reverse"     onClick={() =>setShowIndex && index ? setShowIndex(prev=> prev === index? null:index):null}
+          >
+            <CardTitle className="flex-row-reverse gap-2 flex font-normal text-xl md:text-2xl">
+              <div className="flex self-center items-center justify-center w-[18px] h-[18px] rounded-full text-xs text-white bg-primary">
+                {index}
+              </div>
+              <span className="flex gap-[2px] text-primary">
+                <span>:</span> سوال
+              </span>
+              <div className="flex text-dark">{title} </div>
+            </CardTitle>
+           {ans && <button  className="p-2 mr-auto">
+              <ChevronDown
+                className={`transition-transform duration-300  ${showIndex===index ? "rotate-180" : "rotate-0"} ${iconStyle}`}
+                size={16}
+                color="white"
+              />
+            </button>}
+          </CardHeader>
+         
+          
+          }
 
           {/* Transition for expanding content */}
           <div
@@ -72,6 +104,7 @@ function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex }: 
               showIndex==index ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
             }`}
           >
+ {ans ?
            <CardContent className="gap-2 text-lg flex flex-col w-full h-auto">
   <div className="w-full p-2 bg-secondaryLight rounded-sm py-1 md:text-lg text-md flex flex-row-reverse gap-2 md:gap-4">
     {types?.map((t, i) => (
@@ -100,6 +133,7 @@ function QuestionCard({ title, id, style, index, ans, setShowIndex,showIndex }: 
   </div>
   </Link>
 </CardContent>
+  :null}
 
           </div>
         </div>

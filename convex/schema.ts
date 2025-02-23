@@ -1,3 +1,4 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
@@ -9,20 +10,31 @@ export default defineSchema({
   Questions: defineTable({
     q_no: v.optional(v.number()),
     title: v.string(),
-    status:v.union(
+    status: v.union(
       v.literal("approved"),
       v.literal("rejected"),
-      v.literal("waiting")
-
-    )
-  }).index("by_status",["status"]),
+      v.literal("waiting"),
+    ),
+  }).index("by_status", ["status"]),
 
   Answers: defineTable({
-    q_id: v.id("Questions"), // Connects to a question
+    q_id: v.id("Questions"),
+    status: v.union(
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("waiting"),
+    ),
+
+    // Connects to a question
   }).index("by_qId", ["q_id"]),
   Types: defineTable({
     name: v.string(),
     sort_order: v.number(),
+    status: v.union(
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("waiting"),
+    ),
   }),
 
   Ans_Types: defineTable({
@@ -31,9 +43,14 @@ export default defineSchema({
     content: v.string(),
     reference: v.optional(v.string()),
   }).index("by_aId", ["a_id"]),
- 
+
   Topics: defineTable({
     topic: v.string(),
+    status: v.union(
+      v.literal("approved"),
+      v.literal("rejected"),
+      v.literal("waiting"),
+    ),
   }),
   Topic_Ques: defineTable({
     t_id: v.id("Topics"),
@@ -48,10 +65,5 @@ export default defineSchema({
     q_id: v.id("Questions"),
   }).index("q_id", ["q_id"]),
 
-  users: defineTable({
-    name: v.string(),
-
-    // this the Clerk ID, stored in the subject JWT field
-    externalId: v.string(),
-  }).index("byExternalId", ["externalId"]),
+  ...authTables,
 });

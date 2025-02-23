@@ -11,11 +11,11 @@ import { asyncMap } from "convex-helpers";
 import { Id } from "./_generated/dataModel";
 
 
-export const get = query({
+export const getQues = query({
   args: {},
   handler: async (ctx) => {
     
-    const questions = await ctx.db.query("Questions").order("desc").collect()
+    const questions = await getManyFrom(ctx.db,"Questions","by_status","waiting")
 
     return questions
     
@@ -42,7 +42,7 @@ export const create = mutation({
     const surahQues = await ctx.db.insert("Surah_Ques",{s_id:surah, q_id:quesId as Id<"Questions"> });
     const topicQues = await ctx.db.insert("Topic_Ques",{t_id:topicId as Id<"Topics">, q_id:quesId as Id<"Questions"> });
     
-    const ansId = await ctx.db.insert("Answers",{q_id: quesId as Id<"Questions">});
+    const ansId = await ctx.db.insert("Answers",{q_id: quesId as Id<"Questions">, status:"waiting"});
     
     await asyncMap(
         answers, 
@@ -68,7 +68,7 @@ async function checkAndCreate(
     label: "Questions" | "Types" | "Topics" | "Answers" // Ensure correct collection name
   ) {
     let ID = id; // Keep track of the final ID
-  
+    const status = "waiting";
     if (label === "Questions") {
       try {
         const checkQues = await ctx.db.get(id as Id<"Questions">);
@@ -78,7 +78,7 @@ async function checkAndCreate(
         ID = await ctx.db.insert("Questions", {
           title: id,
           q_no: lastQues.length > 0 ? (lastQues[0]?.q_no ?? 0)+ 1 : 1, 
-          status:"waiting"
+          status
           // Default to 1 if no previous questions exist
         });
       }
@@ -90,7 +90,7 @@ async function checkAndCreate(
         console.log(checkTopic, "checkTopic");
       } catch (error) {
         console.error(`Error fetching Topic with ID ${id}:`, error);
-        ID = await ctx.db.insert("Topics", { topic: id });
+        ID = await ctx.db.insert("Topics", { topic: id, status });
       }
     }
   
@@ -101,7 +101,7 @@ async function checkAndCreate(
         console.error(`Error fetching Type with ID ${id}:`, error);
         const allTypes = await ctx.db.query("Types").collect();
         const greatestSortOrder = allTypes.reduce((max, s) => (s.sort_order > max ? s.sort_order : max), 0);
-        ID = await ctx.db.insert("Types", { name: id, sort_order: greatestSortOrder + 1 });
+        ID = await ctx.db.insert("Types", { name: id, sort_order: greatestSortOrder + 1, status });
       }
     }
   

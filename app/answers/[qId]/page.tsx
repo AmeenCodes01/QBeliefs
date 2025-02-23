@@ -5,7 +5,6 @@ import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
 import { fetchQuery } from 'convex/nextjs';
 import React from 'react'
-// import { useRouter } from 'next/navigation'
 
 
 async  function Answers({

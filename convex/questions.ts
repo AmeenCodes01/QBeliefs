@@ -10,18 +10,6 @@ import {
 import { asyncMap } from "convex-helpers";
 import { getAns } from "./answers";
 
-export const get = query({
-  args: {},
-  handler: async (ctx) => {
-    
-    const questions = await getManyFrom(ctx.db,"Questions","by_status","approved")
-
-    return questions
-    
-    // const answers = await getManyFrom(db,"Answers","by_qId",)
-  },
-});
-
 
 export const getById = query({
   args: {qId:v.id("Questions")},

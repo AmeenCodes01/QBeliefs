@@ -1,20 +1,22 @@
-"use client"
-import { SignInButton, UserButton } from '@clerk/clerk-react'
-import { Authenticated, Unauthenticated } from 'convex/react'
-import React from 'react'
+"use client";
+import { Button } from "@/components/ui/button";
 
-function Provider({children}: {children: React.ReactNode}) {
+import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import React from "react";
+import { SignIn } from "../auth/SignIn";
+
+function Provider({ children }: { children: React.ReactNode }) {
   return (
-    <div suppressHydrationWarning={true} className='w-full h-full flex'>
+    <div suppressHydrationWarning={true} className="w-full h-full flex">
       <Unauthenticated>
-      <SignInButton mode="modal"/>
+        <div className="w-full flex h-full items-center justify-center bg-primary">
+       <SignIn/>   
+        </div>
       </Unauthenticated>
-      <Authenticated>
-        {/* <UserButton/> */}
-        {children}
+      <Authenticated> {children}
       </Authenticated>
     </div>
-  )
+  );
 }
 
-export default Provider
+export default Provider;

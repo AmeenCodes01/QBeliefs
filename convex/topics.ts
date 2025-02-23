@@ -6,8 +6,8 @@ export const get = query({
   args: {},
   handler: async (ctx) => {
     
-    const topics = await ctx.db.query("Topics").collect()
-
+    let topics = await ctx.db.query("Topics").collect()
+    topics = topics.filter((t)=> t.status === "approved")
     return topics
     
     // const answers = await getManyFrom(db,"Answers","by_qId",)

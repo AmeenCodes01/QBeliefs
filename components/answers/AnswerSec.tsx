@@ -36,11 +36,11 @@ function AnswerSec({ ans }: AnsProps) {
         }
       }
     },[])
-
+    
   return (
     <Card className="w-full h-full overflow-auto justify-start flex flex-col scrollbar-left ">
       <CardHeader className="">
-        <CardTitle className="text-right text-xl md:text-2xl text-dark"> {ans.title}</CardTitle>
+        
         {/* <CardDescription>
             Deploy your new project in one-click.
           </CardDescription> */}

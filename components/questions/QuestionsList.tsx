@@ -6,8 +6,6 @@ import QuestionCard from "./QuestionCard";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useStore } from "@/lib/useStore";
-// import InterestBtn from "@/app/components/InterestBtn";
-// import IdeaCard from "@/app/components/IdeaCard";
 
 function QuestionsList({
   topicId,
@@ -51,42 +49,31 @@ const onOpenToggle=(i:number|null)=>setShowIndex(i)
           <input
             type="text"
             placeholder="Search questions..."
-            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none "
+            className="w-full bg-white pl-10 pr-4 py-2 border rounded-lg focus:outline-none "
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* <div className="flex gap-2">
-          <button
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-              filter === "project"
-                ? "bg-blue-100 text-blue-700"
-                : "hover:bg-gray-100"
-            }`}
-            //  onClick={() => setFilter("project")}
-          >
-            <Code size={20} />
-            Projects
-          </button>
-        </div> */}
+       
       </div>
 
       {/* rows messed up with header, cols does not.  */}
       <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
         {filteredQues?.length !== 0
           ? filteredQues?.map((q, i: number) => (
-            <>
+            
             <QuestionCard
-                key={q._}
+                key={q._creationTime}
                 id={q._id}
                 showIndex={showIndex}
                 title={q.title}
                 ans={q.ans[0]}
                 setShowIndex={setShowIndex}  
                 index={i}
+                href={`answers`}
                 />
            
-                </>
+                
             ))
           : null}
       </div>

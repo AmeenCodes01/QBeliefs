@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import Header from "@/components/Header";
 import localFont from 'next/font/local'
 import ConvexClientProvider from "@/components/ConvexClientProvider";
-import Providers from "@/components/ClerkConvexProvider";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 
 const myFont = localFont({
@@ -19,13 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // `suppressHydrationWarning` only affects the html tag,
-    // and is needed by `ThemeProvider` which sets the theme
-    // class attribute on it
+    <ConvexAuthNextjsServerProvider>
     <html lang="en" suppressHydrationWarning={true} className={myFont.className} >
   <body className="antialiased h-screen flex flex-col bg-hover">
     
-    <Providers>
+    <ConvexClientProvider>
       <ThemeProvider attribute="class">
 
         {/* Layout Container */}
@@ -44,9 +42,10 @@ export default function RootLayout({
         </div>
 
       </ThemeProvider>
-    </Providers>
+    </ConvexClientProvider>
   </body>
 </html>
+    </ConvexAuthNextjsServerProvider>
 
   );
 }
