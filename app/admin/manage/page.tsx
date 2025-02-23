@@ -4,7 +4,7 @@ import { api } from '@/convex/_generated/api';
 import QuestionCard from '@/components/questions/QuestionCard';
 
 async function page() {
-    const ques = await fetchQuery(api.admin.getQues)
+    const ques = await fetchQuery(api.questions.get,{status:"waiting"})
   return (
     <div className="flex overflow-auto flex-col w-full pt-6 ">
        <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">

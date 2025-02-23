@@ -6,6 +6,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import Header from "@/components/Header";
 import localFont from 'next/font/local'
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+
+
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 

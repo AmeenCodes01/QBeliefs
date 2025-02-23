@@ -1,4 +1,3 @@
-"use client"
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
  
@@ -12,7 +11,6 @@ export function SignIn() {
         const formData = new FormData(event.currentTarget);
         void signIn("password", formData);
       }}
-      className="space-x-3"
     >
       <input name="email" placeholder="Email" type="text" />
       <input name="password" placeholder="Password" type="password" />

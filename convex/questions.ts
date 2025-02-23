@@ -9,7 +9,24 @@ import {
   } from "convex-helpers/server/relationships";
 import { asyncMap } from "convex-helpers";
 import { getAns } from "./answers";
+import { stat } from "fs";
 
+
+export const get = query({
+  args: {status:  v.union(
+    v.literal("approved"),
+    v.literal("rejected"),
+    v.literal("waiting"),
+  )},
+  handler: async (ctx,{status}) => {
+    
+    const questions = await getManyFrom(ctx.db,"Questions","by_status",status)
+
+    return questions
+    
+    // const answers = await getManyFrom(db,"Answers","by_qId",)
+  },
+});
 
 export const getById = query({
   args: {qId:v.id("Questions")},

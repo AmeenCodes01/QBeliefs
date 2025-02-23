@@ -72,12 +72,3 @@
     scrollbar-color: #FFB536 #ffff; /* Firefox */
     scrollbar-width: thin;
   }
-@layer base {
-  * {
-    
-    /* @apply border-border; */
-  }
-  body {
-    /* @apply bg-background text-foreground; */
-  }
-}

@@ -81,10 +81,10 @@ const onCreate = useMutation(api.admin.create)
   }
 
   const topics = useQuery(api.topics.get)
-  const questions = useQuery(api.questions.get)
+  const questions = useQuery(api.questions.get,{status:"approved"})
   const surahs = useQuery(api.surahs.get)
   const types = useQuery(api.types.get)
-  
+  console.log(questions,"questions ")
   return (
       <div className="w-full h-full flex flex-col flex-1 text-md pb-4  justify-center items-center overflow-hidden  ">
       

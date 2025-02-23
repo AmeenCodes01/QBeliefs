@@ -11,17 +11,6 @@ import { asyncMap } from "convex-helpers";
 import { Id } from "./_generated/dataModel";
 
 
-export const getQues = query({
-  args: {},
-  handler: async (ctx) => {
-    
-    const questions = await getManyFrom(ctx.db,"Questions","by_status","waiting")
-
-    return questions
-    
-    // const answers = await getManyFrom(db,"Answers","by_qId",)
-  },
-});
 
 
 export const create = mutation({

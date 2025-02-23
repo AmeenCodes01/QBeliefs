@@ -2,7 +2,6 @@ import { api } from "@/convex/_generated/api";
 import React from "react";
 import { fetchQuery } from "convex/nextjs";
 import QuestionsList from "@/components/questions/QuestionsList";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Sidebar from "@/components/surahs/sidebar";
 async function page() {
