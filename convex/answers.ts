@@ -27,19 +27,24 @@ type typesWithNameType = {
 };
 
 export const get = query({
-  args: { qId: v.id("Questions") },
-  handler: async (ctx, { qId }) => {
+  args: { qId: v.id("Questions"),   
+     status: v.optional(v.union(
+    v.literal("approved"),
+    v.literal("rejected"),
+    v.literal("waiting"),
+  ) )},
+  handler: async (ctx, { qId,status }) => {
 
-    const result = await getAns(ctx,qId)
+    const result = await getAns(ctx,qId,status?status:"approved")
     return result
     
   },
 });
 
-export async function getAns (ctx: QueryCtx,qId:Id<"Questions">) {
+export async function getAns (ctx: QueryCtx,qId:Id<"Questions">,status:string) {
   // get answers Id from Answers table
   let answers = await getManyFrom(ctx.db, "Answers", "by_qId", qId, "q_id");
-  answers = answers.filter(ans=> ans.status==="approved")
+  answers = answers.filter(ans=> ans.status===status)
   // get all ans_types for each a_id
   
   // get all answers of a question. then get the Ans_Types. then get all types. do the sorting manually here ?

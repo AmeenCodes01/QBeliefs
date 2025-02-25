@@ -7,7 +7,7 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  safelist: ["dark"],
+  safelist: ["light"],
   theme: {
     container: {
       center: true,
@@ -29,6 +29,9 @@ export default {
         secondary:"#FFB536", 
         secondaryLight:" #FFFCE7"
       },
+      textColor: {
+        DEFAULT:"#000000"
+      }
     
       //   background: "hsl(var(--background))",
       //   foreground: "hsl(var(--foreground))",

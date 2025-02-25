@@ -7,10 +7,9 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
+  
+  FormField
+  
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQuery } from "convex/react";
@@ -18,6 +17,7 @@ import { api } from "@/convex/_generated/api";
 import ItemForm from "../components/ItemForm";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import DataList from "../components/DataList";
+import AnswerItem from "../components/AnswerItem";
 
 const formSchema = z.object({
   topic: z.string({}).min(1, { message: "Please select a topic." }),
@@ -27,11 +27,13 @@ const formSchema = z.object({
       types: z.array(
         z.object({
           type: z.string().min(1, { message: "Please select a type." }),
-          text: z.string().min(1, { message: "Please provide text for the type." }),
+          text: z
+            .string()
+            .min(1, { message: "Please provide text for the type." }),
           reference: z.string().optional(),
-        })
+        }),
       ),
-    })
+    }),
   ),
   surah: z.string({}).min(1, { message: "Please select a topic." }),
 });
@@ -53,15 +55,14 @@ export default function ProfileForm() {
     fields: answersFields,
     append: appendAnswer,
     remove: removeAnswer,
-    
   } = useFieldArray({
     control: form.control,
     name: "answers",
   });
-const answers = useWatch({
-  control:form.control,
-  name:"answers"
-})
+  const answers = useWatch({
+    control: form.control,
+    name: "answers",
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const updatedValues = {
@@ -77,8 +78,7 @@ const answers = useWatch({
   const surahs = useQuery(api.surahs.get);
   const types = useQuery(api.types.get);
 
-
-console.log("render")
+  console.log("render");
 
   return (
     <div className="w-full h-full flex flex-col flex-1 text-md pb-4 justify-center items-center overflow-hidden">
@@ -147,99 +147,41 @@ console.log("render")
           />
 
           {/* Render the `answers` array */}
-          {answers.map((answer, answerIndex) => (
-  <div key={answer.id} className="space-y-4 border p-4 rounded-md">
-    <h3 className="font-semibold">Answer {answerIndex + 1}</h3>
-
-    <Button type="button" onClick={() => removeAnswer(answerIndex)}>
-      Remove Answer
-    </Button>
-
-    <div>
-      {answer.types?.map((type, typeIndex) => (
-        <div key={typeIndex} className="space-y-2">
-          {/* Type Field */}
-          <FormField
-            control={form.control}
-            name={`answers.${answerIndex}.types.${typeIndex}.type`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} placeholder="Type" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Text Field */}
-          <FormField
-            control={form.control}
-            name={`answers.${answerIndex}.types.${typeIndex}.text`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} placeholder="Text" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Reference Field */}
-          <FormField
-            control={form.control}
-            name={`answers.${answerIndex}.types.${typeIndex}.reference`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input {...field} placeholder="Reference" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      ))}
-    </div>
-
-    <Button
-              type="button"
-              onClick={() => {
-                const currentTypes = form.getValues(`answers.${answerIndex}.types`);
-                console.log(currentTypes,"ct")
-                form.setValue(`answers.${answerIndex}.types`, [
-                  ...currentTypes,
-                  { type: "", text: "", reference: "" },
-                ]);
-              }}
-            >
-              Add Type
-            </Button>
-  </div>
+          {answersFields.map((answerField, answerIndex) => (
+  <AnswerItem
+    key={answerField.id}
+    control={form.control}
+    answerIndex={answerIndex}
+    onRemoveAnswer={() => removeAnswer(answerIndex)}
+    types={types}
+  />
 ))}
 
-<Button
-  type="button"
-  onClick={() =>
-    appendAnswer({ types: [{ text: "", type: "", reference: "" }] })
-  }
->
-  Add Answer
-</Button>
-
+          <Button
+            type="button"
+            onClick={() =>
+              appendAnswer({ types: [{ text: "", type: "", reference: "" }] })
+            }
+          >
+            Add Answer
+          </Button>
 
           {/* Add Answer button */}
           <Button
             type="button"
             className="w-fit text-white ml-auto"
-            onClick={() => appendAnswer({ types: [{ type: "", text: "", reference: "" }] })}
+            onClick={() =>
+              appendAnswer({ types: [{ type: "", text: "", reference: "" }] })
+            }
           >
             + Add Answer
           </Button>
 
           {/* Submit button */}
-          <Button className="w-[400px] ml-auto mr-auto text-lg text-white" type="submit">
+          <Button
+            className="w-[400px] ml-auto mr-auto text-lg text-white"
+            type="submit"
+          >
             Submit
           </Button>
         </form>

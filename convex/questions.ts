@@ -9,7 +9,6 @@ import {
   } from "convex-helpers/server/relationships";
 import { asyncMap } from "convex-helpers";
 import { getAns } from "./answers";
-import { stat } from "fs";
 
 
 export const get = query({
@@ -52,7 +51,7 @@ export const getByTopic = query({
 
 
       const quesAns =await asyncMap(questions.filter(Boolean), async(ques)=>{
-         const ans = await getAns(ctx, ques._id)
+         const ans = await getAns(ctx, ques._id,"approved")
          const surahQues = await getManyFrom(ctx.db,"Surah_Ques","q_id", ques._id)
          const surahIds = surahQues.map(u=>u.s_id)
          return {...ques, ans, surahIds}

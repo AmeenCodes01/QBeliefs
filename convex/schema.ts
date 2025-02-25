@@ -15,7 +15,7 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string())
+    uploaderId: v.optional(v.string()),
   }).index("by_status", ["status"]),
 
   Answers: defineTable({
@@ -25,10 +25,11 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string())
+    uploaderId: v.optional(v.string()),
 
     // Connects to a question
   }).index("by_qId", ["q_id"]),
+
   Types: defineTable({
     name: v.string(),
     sort_order: v.number(),
@@ -37,7 +38,7 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string())
+    uploaderId: v.optional(v.string()),
   }),
 
   Ans_Types: defineTable({
@@ -45,7 +46,7 @@ export default defineSchema({
     type_id: v.id("Types"),
     content: v.string(),
     reference: v.optional(v.string()),
-    uploaderId: v.optional(v.string())
+    uploaderId: v.optional(v.string()),
   }).index("by_aId", ["a_id"]),
 
   Topics: defineTable({
@@ -55,12 +56,14 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string())
+    uploaderId: v.optional(v.string()),
   }),
+
   Topic_Ques: defineTable({
     t_id: v.id("Topics"),
     q_id: v.id("Questions"),
   }).index("by_tId", ["t_id"]),
+
   Surahs: defineTable({
     name: v.string(),
     surah: v.string(),
