@@ -38,7 +38,7 @@ function AnswerSec({ ans }: AnsProps) {
     },[])
     
   return (
-    <Card className="w-full h-full overflow-auto justify-start flex flex-col scrollbar-left ">
+    <Card className="w-full h-full  overflow-auto justify-start flex flex-col scrollbar-left ">
       <CardHeader className="">
         
         {/* <CardDescription>

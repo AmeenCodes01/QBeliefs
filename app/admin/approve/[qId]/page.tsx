@@ -1,3 +1,4 @@
+import AcceptReject from "@/app/answers/AcceptReject";
 import AnswerSec from "@/components/answers/AnswerSec";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -19,7 +20,11 @@ async function Answers({ params }: { params: Promise<{ qId: string }> }) {
       <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
         {question?.title}
       </h1>
-      {answers?.map((a) => <AnswerSec key={a._creationTime} ans={a} />)}
+      {answers?.map((a) => (<>
+        <AnswerSec key={a._creationTime} ans={a} />
+        <AcceptReject/>
+      </>
+        ))}
     </div>
   );
 }
