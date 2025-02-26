@@ -24,7 +24,7 @@ function AnswerSec({ ans }: AnsProps) {
       if (hashIndex !== -1) {
         const encodedId = url.substring(hashIndex + 1);
         const id = decodeURIComponent(encodedId); // Decode Urdu text
-  
+        console.log(id,"id")
         const element = document.getElementById(id);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
@@ -38,7 +38,7 @@ function AnswerSec({ ans }: AnsProps) {
     },[])
     
   return (
-    <Card className="w-full h-full  overflow-auto justify-start flex flex-col scrollbar-left ">
+    <Card className="w-full bg-white h-fit    overflow-hidden justify-start flex flex-col scrollbar-left ">
       <CardHeader className="">
         
         {/* <CardDescription>
@@ -47,13 +47,13 @@ function AnswerSec({ ans }: AnsProps) {
       </CardHeader>
       <CardContent>
       <div
-          className={`transition-all duration-700 ease-in overflow-auto  ${
-            readMore ? "max-h-[1000px]" : "max-h-[200px]"
+          className={` transition-all duration-700 ease-in overflow-auto  ${
+            readMore ? "max-h-[500px]" : "max-h-full"
           }`}
         >
         {ans?.type?.map((type) => {
           return(
-          <div key={type._creationTime} className="bg-hover h-full  transition-all  w-full p-4 rounded-md text-black text-right " id={type?.typeWithName?.name}>
+          <div key={type._creationTime} className=" h-full  transition-all  w-full p-4 rounded-md text-black text-right " id={type?.typeWithName?.name}>
             <h1
               className="  w-full
             my-2

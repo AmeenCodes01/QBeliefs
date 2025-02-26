@@ -28,7 +28,10 @@ export const get = query({
 });
 
 export const getById = query({
-  args: {qId:v.id("Questions")},
+  args: {qId:v.id("Questions")
+
+    
+  },
   handler: async (ctx,{qId}) => {
     
     const question = await ctx.db.get(qId)
@@ -56,7 +59,7 @@ export const getByTopic = query({
          const surahIds = surahQues.map(u=>u.s_id)
          return {...ques, ans, surahIds}
       })
-      console.log(quesAns)
+     
   
     // const questions = await ctx.db.
 

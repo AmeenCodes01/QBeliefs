@@ -28,7 +28,10 @@ export default defineSchema({
     uploaderId: v.optional(v.string()),
 
     // Connects to a question
-  }).index("by_qId", ["q_id"]),
+  }).index("by_qId", ["q_id"]).index("by_status", ["status"]),
+
+
+
 
   Types: defineTable({
     name: v.string(),

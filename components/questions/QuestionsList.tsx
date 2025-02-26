@@ -12,13 +12,12 @@ function QuestionsList({
 }: {
   topicId: Id<"Topics"> }
 ) {
-  console.log(topicId,"topicId")
   const [search, setSearch] = useState("");
   const [showIndex, setShowIndex]=useState<null|number>(0)
+  console.log(showIndex,"showIndes")
   let filter = "all";
   const surahId = useStore(state=>state.surahId)
   const qArr = useQuery(api.questions.getByTopic,{topicId})
-console.log(qArr,"qArr")
 
   const filteredQues = qArr?.filter((ques) => {
     let surahMatch = true;
@@ -34,9 +33,7 @@ console.log(qArr,"qArr")
   
     return surahMatch && searchMatch;
   });
-
     
-const onOpenToggle=(i:number|null)=>setShowIndex(i)
 
   return (
     <div className="flex overflow-auto flex-col w-full ">
@@ -70,7 +67,6 @@ const onOpenToggle=(i:number|null)=>setShowIndex(i)
                 ans={q.ans[0]}
                 setShowIndex={setShowIndex}  
                 index={i}
-                href={`answers`}
                 />
            
                 

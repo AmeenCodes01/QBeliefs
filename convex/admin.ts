@@ -68,6 +68,40 @@ export const create = mutation({
   },
 });
 
+
+export const getWaiting = query({
+args: {},
+handler: async (ctx,args)=>{
+  const answers = await getManyFrom(ctx.db,"Answers","by_status","waiting","status" );
+  
+  const answerQues = await asyncMap(answers.filter(Boolean), async(ans)=>{
+    const {q_id, ...rest}=ans
+    const ques = await ctx.db.get(q_id)
+    
+      return { question:ques}
+  })
+  const uniqueQuestionsMap = new Map();
+
+// Extract unique questions
+const uniqueQuestions = answerQues
+  .filter((qa) => {
+    if (!uniqueQuestionsMap.has(qa.question?._id)) {
+      uniqueQuestionsMap.set(qa.question?._id, qa.question); // Store full question object
+      return true;
+    }
+    return false;
+  })
+  .map((qa) => qa.question);
+  return uniqueQuestions.filter(Boolean)
+}
+
+})
+
+
+
+
+
+
 async function checkAndCreate(
   ctx: MutationCtx,
   id: Id<"Questions"> | Id<"Types"> | Id<"Topics"> | Id<"Answers"> | string,

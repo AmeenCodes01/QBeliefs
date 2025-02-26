@@ -76,3 +76,4 @@ export async function getAns (ctx: QueryCtx,qId:Id<"Questions">,status:string) {
 
   return answerWithTypes;
 }
+
