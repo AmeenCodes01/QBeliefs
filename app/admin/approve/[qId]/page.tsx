@@ -1,30 +1,89 @@
+"use client";
 import AcceptReject from "@/app/answers/AcceptReject";
 import AnswerSec from "@/components/answers/AnswerSec";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { fetchQuery } from "convex/nextjs";
+import { useQuery } from "convex/react";
+import { useParams } from "next/navigation";
 import React from "react";
-// import { useRouter } from 'next/navigation'
 
-async function Answers({ params }: { params: Promise<{ qId: string }> }) {
-  const slug = (await params).qId;
-  const qId = slug as Id<"Questions">;
-  const answers = await fetchQuery(api.answers.get, { qId, status:"waiting" });
-  const question = await fetchQuery(api.questions.getById, { qId });
+interface TypeWithName {
+  _creationTime: number;
+  _id: Id<"Types">;
+  name: string;
+  sort_order: number;
+  status: string;
+}
 
-  if (answers?.length == 0) {
+interface Type {
+  _creationTime: number;
+  _id: Id<"Ans_Types">;
+  a_id: Id<"Answers">;
+  content: string;
+  reference: string;
+  typeWithName: TypeWithName | null;
+  type_id: Id<"Types">;
+}
+
+interface Answer {
+  _creationTime: number;
+  _id: Id<"Answers">;
+  q_id: Id<"Questions">;
+  status: string;
+  type: Type[];
+}
+
+interface Topic {
+  _creationTime: number;
+  _id: Id<"Topics">;
+  status: string;
+  topic: string;
+}
+
+interface Question {
+  qTitle: string;
+}
+
+type ResponseData = [Answer[], { topic: Topic[] }, Question];
+
+function Answers() {
+  const { qId } = useParams<{ qId: Id<"Questions"> }>();
+  const answers = useQuery(api.admin.getAns, { qId }) as ResponseData | undefined;
+
+  // If answers are still loading or undefined, show loading message
+  if (!answers) {
     return <span>No answers yet</span>;
   }
+
+  // Extract data safely
+  const questionTitle = answers[2]?.qTitle ?? "No title available";
+  const topicTitle = answers[1]?.topic?.[0]?.topic ?? "No topic available";
+  const topicId = answers[1]?.topic?.[0]?._id;
+
   return (
     <div className="w-full h-[100%] gap-4 flex flex-col mx-auto pt-8 relative">
       <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
-        {question?.title}
+        {questionTitle}
       </h1>
-      {answers?.map((a) => (<>
-        <AnswerSec key={a._creationTime} ans={a} />
-        <AcceptReject/>
-      </>
-        ))}
+      <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
+        {topicTitle}
+      </h1>
+
+      {answers[0]?.length > 0 ? (
+        answers[0].map((a) => (
+          <div key={a._creationTime}>
+            
+              <>
+                <AnswerSec key={a._creationTime} ans={a} />
+                {topicId && <AcceptReject ansId={a._id} qId={qId} topicId={topicId} />}
+              </>
+            
+            
+          </div>
+        ))
+      ) : (
+        <span>No answers available.</span>
+      )}
     </div>
   );
 }

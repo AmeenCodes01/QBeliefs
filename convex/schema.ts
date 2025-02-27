@@ -28,10 +28,9 @@ export default defineSchema({
     uploaderId: v.optional(v.string()),
 
     // Connects to a question
-  }).index("by_qId", ["q_id"]).index("by_status", ["status"]),
-
-
-
+  })
+    .index("by_qId", ["q_id"])
+    .index("by_status", ["status"]),
 
   Types: defineTable({
     name: v.string(),
@@ -65,7 +64,8 @@ export default defineSchema({
   Topic_Ques: defineTable({
     t_id: v.id("Topics"),
     q_id: v.id("Questions"),
-  }).index("by_tId", ["t_id"]),
+  }).index("by_tId", ["t_id"]).index("q_id",["q_id"])      
+  ,
 
   Surahs: defineTable({
     name: v.string(),

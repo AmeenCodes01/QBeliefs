@@ -32,6 +32,9 @@ export default {
       textColor: {
         DEFAULT:"#000000"
       }
+      //   destructive: {
+      //     DEFAULT: "hsl(var(--destructive))",
+      //     foreground: "hsl(var(--destructive-foreground))",
     
       //   background: "hsl(var(--background))",
       //   foreground: "hsl(var(--foreground))",
@@ -59,9 +62,6 @@ export default {
       //     DEFAULT: "hsl(var(--accent))",
       //     foreground: "hsl(var(--accent-foreground))",
       //   },
-      //   destructive: {
-      //     DEFAULT: "hsl(var(--destructive))",
-      //     foreground: "hsl(var(--destructive-foreground))",
       //   },
       //   border: "hsl(var(--border))",
       //   input: "hsl(var(--input))",

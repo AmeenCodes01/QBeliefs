@@ -18,6 +18,7 @@ export type AnswerType = {
     type_id: Id<"Types">;
     content: string;
   }[];
+  status: string;
 };
 
 export type AnsProps = {

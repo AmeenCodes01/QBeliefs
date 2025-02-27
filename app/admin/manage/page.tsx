@@ -1,12 +1,14 @@
+"use client"
 import React from 'react'
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { api } from '@/convex/_generated/api';
 import QuestionCard from '@/components/questions/QuestionCard';
 import { Id } from '@/convex/_generated/dataModel';
 import { Doc } from '@convex-dev/auth/server';
+import { useQuery } from 'convex/react';
 
-async function page() {
-  const waiting = (await fetchQuery(api.admin.getWaiting)) || [];
+ function page() {
+  const waiting = useQuery(api.admin.getWaitingQues) || [];
 
     console.log(waiting,"uniqueWaiting")
   return (
@@ -16,10 +18,10 @@ async function page() {
           ? waiting?.map((q, i: number) => (
             
             <QuestionCard
-                key={q?._creationTime}
-                id={q?._id as Id<"Questions">}
+                key={q?.question._creationTime}
+                id={q?.question._id as Id<"Questions">}
                index={i}
-                title={q?.title as string}
+                title={q?.question.title as string}
                 style={"border-[1px] "}
                 href={"approve"}
                 />

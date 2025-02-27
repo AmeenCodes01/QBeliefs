@@ -9,6 +9,7 @@ import {
 } from "convex-helpers/server/relationships";
 import { asyncMap } from "convex-helpers";
 import { Id } from "./_generated/dataModel";
+import { AnsTypes } from "./answers";
 
 export const create = mutation({
   args: {
@@ -69,35 +70,95 @@ export const create = mutation({
 });
 
 
-export const getWaiting = query({
+export const getWaitingQues = query({
 args: {},
 handler: async (ctx,args)=>{
-  const answers = await getManyFrom(ctx.db,"Answers","by_status","waiting","status" );
-  
+  //const answers = await getManyFrom(ctx.db,"Answers","by_status","waiting","status" );
+  const answers = await ctx.db.query("Answers").withIndex("by_status",q=> q.eq("status", "waiting")).collect()
+  console.log(answers,"answers server")
   const answerQues = await asyncMap(answers.filter(Boolean), async(ans)=>{
     const {q_id, ...rest}=ans
     const ques = await ctx.db.get(q_id)
+    //const topic =await  getManyVia(ctx.db,"Topic_Ques","t_id","q_id",q_id) 
     
       return { question:ques}
   })
-  const uniqueQuestionsMap = new Map();
+console.log(answerQues,"answerQues")
 
-// Extract unique questions
-const uniqueQuestions = answerQues
+  const uniqueQuestionsMap = new Map();
+  const uniqueQuestions = answerQues
   .filter((qa) => {
     if (!uniqueQuestionsMap.has(qa.question?._id)) {
-      uniqueQuestionsMap.set(qa.question?._id, qa.question); // Store full question object
+      // Store both the question and topic as an object
+      uniqueQuestionsMap.set(qa.question?._id, { question: qa.question });
       return true;
     }
     return false;
   })
-  .map((qa) => qa.question);
-  return uniqueQuestions.filter(Boolean)
+  .map((qa) => {
+    // Map to get the question and topic
+    const storedData = uniqueQuestionsMap.get(qa.question?._id);
+    return storedData ? { question: storedData.question, topic: storedData.topic } : null;
+  })
+  .filter(Boolean);
+  return uniqueQuestions
 }
+})
 
+export const getAns = query({
+  args:{
+    
+    qId: v.id("Questions")
+   },
+  handler:async(ctx,args)=>{
+    let answers = await getManyFrom(ctx.db, "Answers", "by_qId", args.qId, "q_id");
+    answers = answers.filter(a=>a.status =="waiting")
+    const topic =await  getManyVia(ctx.db,"Topic_Ques","t_id","q_id",args.qId) 
+    const ques = await ctx.db.get(args.qId)
+    const AnsWithTypes =await  asyncMap(answers.filter(Boolean), async (ans)=>{
+         const typesWithName =await AnsTypes(ctx,ans._id)
+     
+            return { ...ans,type:typesWithName };
+     
+      
+    })
+
+    const AnsTopicsQues =[[...AnsWithTypes], {topic}, {qTitle:ques?.title}]
+    
+
+    return AnsTopicsQues
+    // just add question & topic to ans along types. 
+  }
 })
 
 
+export const accept = mutation({
+args:{topicId:v.id("Topics"), qId:v.id("Questions"), ansId:v.id("Answers")},
+handler: async(ctx,{topicId,qId,ansId})=>{
+//change topic,ques,ans status. 
+// I will get topicId, ansId, qId. 
+const topic = await ctx.db.get(topicId)
+if(topic?.status !=="approved"){
+  
+  await ctx.db.patch(topicId,{status:"approved"})
+}
+const ques = await ctx.db.get(qId)
+
+if(ques?.status !=="approved"){
+  
+  await ctx.db.patch(qId,{status:"approved"})
+}
+
+const ans= await ctx.db.get(ansId)
+
+if(ans?.status !=="approved"){
+  
+  await ctx.db.patch(ansId,{status:"approved"})
+  
+}
+
+}  
+})
 
 
 

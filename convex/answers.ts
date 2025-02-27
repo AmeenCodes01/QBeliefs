@@ -7,10 +7,10 @@ import {
   getManyVia,
   getAllOrThrow,
 } from "convex-helpers/server/relationships";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { asyncMap } from "convex-helpers";
 
-type typesWithNameType = {
+export type typesWithNameType = {
   typeWithName: {
     _id: Id<"Types">;
     _creationTime: number;
@@ -41,27 +41,39 @@ export const get = query({
   },
 });
 
+
 export async function getAns (ctx: QueryCtx,qId:Id<"Questions">,status:string) {
   // get answers Id from Answers table
   let answers = await getManyFrom(ctx.db, "Answers", "by_qId", qId, "q_id");
   answers = answers.filter(ans=> ans.status===status)
   // get all ans_types for each a_id
   
-  // get all answers of a question. then get the Ans_Types. then get all types. do the sorting manually here ?
+  const answerWithTypes = await asyncMap(
+    answers.filter(Boolean),
+    async (ans) => {
+      // for each answer, get all types from Ans_Types
+      const typesWithName = await AnsTypes(ctx,ans._id)
+
+       return { ...ans,type:typesWithName };
+       },
+      );
+      return answerWithTypes  // get all answers of a question. then get the Ans_Types. then get all types. do the sorting manually here ?
 
   // get types of each answer. //
 
   //query answers
 
-  const answerWithTypes = await asyncMap(
-    answers.filter(Boolean),
-    async (ans) => {
-      // for each answer, get all types from Ans_Types
+
+
+}
+
+export async function AnsTypes(ctx:QueryCtx, id:(Id<"Answers">)){
+        // for each answer, get all types from Ans_Types
       const allTypes = await getManyFrom(
         ctx.db,
         "Ans_Types",
         "by_aId",
-        ans?._id as Id<"Answers">,
+        id as Id<"Answers">,
         "a_id",
       );
       // for each type in Ans_Types, get name from Types.
@@ -70,10 +82,9 @@ export async function getAns (ctx: QueryCtx,qId:Id<"Questions">,status:string) {
         return { ...type, typeWithName: typeName };
       });
 
-       return { ...ans,type:typesWithName };
-       },
-  );
+      
 
-  return answerWithTypes;
+       return typesWithName ;
+   
 }
 
