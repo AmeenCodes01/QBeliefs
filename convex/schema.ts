@@ -16,6 +16,7 @@ export default defineSchema({
       v.literal("waiting"),
     ),
     uploaderId: v.optional(v.string()),
+    rejectNote: v.optional(v.string())
   }).index("by_status", ["status"]),
 
   Answers: defineTable({
@@ -26,6 +27,7 @@ export default defineSchema({
       v.literal("waiting"),
     ),
     uploaderId: v.optional(v.string()),
+    rejectNote: v.optional(v.string())
 
     // Connects to a question
   })
@@ -41,6 +43,7 @@ export default defineSchema({
       v.literal("waiting"),
     ),
     uploaderId: v.optional(v.string()),
+    rejectNote: v.optional(v.string())
   }),
 
   Ans_Types: defineTable({
@@ -59,6 +62,7 @@ export default defineSchema({
       v.literal("waiting"),
     ),
     uploaderId: v.optional(v.string()),
+    rejectNote: v.optional(v.string())
   }),
 
   Topic_Ques: defineTable({

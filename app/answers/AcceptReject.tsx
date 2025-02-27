@@ -5,13 +5,14 @@ import { Id } from '@/convex/_generated/dataModel'
 import { useMutation } from 'convex/react'
 import React from 'react'
 
- function AcceptReject({topicId,qId,ansId}:{
+ function AcceptReject({topicId,qId,ansId,typeIds}:{
   topicId:Id<"Topics">,
   qId:Id<"Questions">,
   ansId:Id<"Answers">
+  typeIds:Id<"Types">[]
 }) {
   const accept = useMutation(api.admin.accept)
-const onAccept = async()=>{ await accept({qId, topicId, ansId})
+const onAccept = async()=>{ await accept({qId, topicId, ansId,typeIds})
 }
 
   return (

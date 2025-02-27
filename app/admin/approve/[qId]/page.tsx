@@ -59,9 +59,9 @@ function Answers() {
   const questionTitle = answers[2]?.qTitle ?? "No title available";
   const topicTitle = answers[1]?.topic?.[0]?.topic ?? "No topic available";
   const topicId = answers[1]?.topic?.[0]?._id;
-
+  
   return (
-    <div className="w-full h-[100%] gap-4 flex flex-col mx-auto pt-8 relative">
+    <div className="w-full h-[100%] gap-4 flex flex-col mx-auto pt-8 relative overflow-auto">
       <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
         {questionTitle}
       </h1>
@@ -70,17 +70,20 @@ function Answers() {
       </h1>
 
       {answers[0]?.length > 0 ? (
-        answers[0].map((a) => (
+        answers[0].map((a) => {
+          const typeIds = [...new Set(a?.type.map(t => t.type_id) ?? [])];
+          console.log(typeIds,"typeiDS")
+          return (
           <div key={a._creationTime}>
             
               <>
                 <AnswerSec key={a._creationTime} ans={a} />
-                {topicId && <AcceptReject ansId={a._id} qId={qId} topicId={topicId} />}
+                {(topicId && typeIds) && <AcceptReject ansId={a._id} qId={qId} topicId={topicId} typeIds={typeIds} />}
               </>
             
             
           </div>
-        ))
+        )})
       ) : (
         <span>No answers available.</span>
       )}
