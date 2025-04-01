@@ -62,19 +62,20 @@ function Answers() {
   
   return (
     <div className="w-full h-[100%] gap-4 flex flex-col mx-auto pt-8 relative overflow-auto">
-      <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
+      <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4  z-10">
         {questionTitle}
       </h1>
-      <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4 sticky top-0 z-10">
+      <h1 className="text-center text-2xl md:text-3xl text-dark tracking-wider border-[1px] rounded-sm bg-accent py-4  z-10">
         {topicTitle}
       </h1>
+
+<div className="space-y-2">
 
       {answers[0]?.length > 0 ? (
         answers[0].map((a) => {
           const typeIds = [...new Set(a?.type.map(t => t.type_id) ?? [])];
-          console.log(typeIds,"typeiDS")
           return (
-          <div key={a._creationTime}>
+          <div key={a._creationTime} className="space-y-2 border-[2px] rounded-xl ">
             
               <>
                 <AnswerSec key={a._creationTime} ans={a} />
@@ -87,6 +88,7 @@ function Answers() {
       ) : (
         <span>No answers available.</span>
       )}
+</div>
     </div>
   );
 }

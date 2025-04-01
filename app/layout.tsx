@@ -23,10 +23,10 @@ export default function RootLayout({
   return (
     <ConvexAuthNextjsServerProvider>
     <html lang="en" suppressHydrationWarning={true} className={myFont.className} >
-  <body className="antialiased h-screen flex flex-col bg-hover">
+  <body className="antialiased h-screen flex flex-col bg-hover text-black">
     
     <ConvexClientProvider>
-      <ThemeProvider attribute="class">
+      {/* <ThemeProvider attribute="class"> */}
 
         {/* Layout Container */}
         <div className="flex flex-col h-screen overflow-hidden">
@@ -43,7 +43,7 @@ export default function RootLayout({
 
         </div>
 
-      </ThemeProvider>
+      {/* </ThemeProvider> */}
     </ConvexClientProvider>
   </body>
 </html>

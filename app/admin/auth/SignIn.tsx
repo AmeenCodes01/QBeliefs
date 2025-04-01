@@ -1,9 +1,10 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
  
 export function SignIn() {
   const { signIn } = useAuthActions();
-  const [step, setStep] = useState<"signUp" | "signIn">("signIn");
   return (
     <form
       onSubmit={(event) => {
@@ -12,18 +13,14 @@ export function SignIn() {
         void signIn("password", formData);
       }}
     >
-      <input name="email" placeholder="Email" type="text" />
-      <input name="password" placeholder="Password" type="password" />
-      <input name="flow" type="hidden" value={step} />
-      <button type="submit">{step === "signIn" ? "Sign in" : "Sign up"}</button>
-      <button
-        type="button"
-        onClick={() => {
-          setStep(step === "signIn" ? "signUp" : "signIn");
-        }}
-      >
-        {step === "signIn" ? "Sign up instead" : "Sign in instead"}
-      </button>
+      <div className="flex flex-col gap-2 ">
+
+      <Input name="email" placeholder="Email" type="text" />
+      <Input name="password" placeholder="Password" type="password" />
+      <input name="flow" type="hidden" value={"signIn"} />
+      </div>
+      <Button type="submit" className="text-white bg-dark font-serif mt-4 w-full">Sign In</Button>
+    
     </form>
   );
 }

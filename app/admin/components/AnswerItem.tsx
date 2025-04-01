@@ -19,11 +19,13 @@ const AnswerItem = ({
     control,
     answerIndex,
     onRemoveAnswer,
-    types
+    types,
+    ansLength
   }: {
     control: any;
     answerIndex: number;
     onRemoveAnswer: () => void;
+    ansLength: number;
     types: Doc<"Types">[] | undefined
   }) => {
     const {
@@ -41,6 +43,7 @@ const AnswerItem = ({
           <h3 className="font-semibold">Answer {answerIndex + 1}</h3>
           <Button
             type="button"
+            disabled={ansLength ==1}
             variant="destructive"
             size="sm"
             onClick={onRemoveAnswer}
@@ -50,7 +53,7 @@ const AnswerItem = ({
         </div>
   
         {typesFields.map((typeField, typeIndex) => (
-          <div key={typeField.id} className="space-y-2 border p-2 rounded">
+          <div key={typeField.id} className="space-y-2 border-2 h-fit p-2 rounded">
             <FormField
               control={control}
               name={`answers.${answerIndex}.types.${typeIndex}.type`}
@@ -102,9 +105,9 @@ const AnswerItem = ({
             <Button
               type="button"
               variant="destructive"
+              disabled ={typesFields.length ==1} 
               size="sm"
-              onClick={() => removeType(typeIndex)}
-              className="mt-2"
+              onClick={() => typesFields.length > 1 ? removeType(typeIndex):null}
             >
               Remove Type
             </Button>
@@ -113,7 +116,7 @@ const AnswerItem = ({
   
         <Button
           type="button"
-          variant="outline"
+         
           size="sm"
           onClick={() => appendType({ type: "", text: "", reference: "" })}
         >

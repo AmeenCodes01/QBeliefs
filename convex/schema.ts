@@ -12,10 +12,11 @@ export default defineSchema({
     title: v.string(),
     status: v.union(
       v.literal("approved"),
+      
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string()),
+    uploaderId: v.optional(v.id("users")),
     rejectNote: v.optional(v.string())
   }).index("by_status", ["status"]),
 
@@ -26,7 +27,7 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string()),
+    uploaderId: v.optional(v.id("users")),
     rejectNote: v.optional(v.string())
 
     // Connects to a question
@@ -42,7 +43,7 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string()),
+    uploaderId: v.optional(v.id("users")),
     rejectNote: v.optional(v.string())
   }),
 
@@ -51,7 +52,7 @@ export default defineSchema({
     type_id: v.id("Types"),
     content: v.string(),
     reference: v.optional(v.string()),
-    uploaderId: v.optional(v.string()),
+    uploaderId: v.optional(v.id("users")),
   }).index("by_aId", ["a_id"]),
 
   Topics: defineTable({
@@ -61,7 +62,7 @@ export default defineSchema({
       v.literal("rejected"),
       v.literal("waiting"),
     ),
-    uploaderId: v.optional(v.string()),
+    uploaderId: v.optional(v.id("users")),
     rejectNote: v.optional(v.string())
   }),
 

@@ -11,7 +11,6 @@ import {
   FormField
   
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ItemForm from "../components/ItemForm";
@@ -21,7 +20,7 @@ import AnswerItem from "../components/AnswerItem";
 
 const formSchema = z.object({
   topic: z.string({}).min(1, { message: "Please select a topic." }),
-  question: z.string({}).min(1, { message: "Please select a topic." }),
+  question: z.string({}).min(1, { message: "Please select a question." }),
   answers: z.array(
     z.object({
       types: z.array(
@@ -34,8 +33,8 @@ const formSchema = z.object({
         }),
       ),
     }),
-  ),
-  surah: z.string({}).min(1, { message: "Please select a topic." }),
+  ).min(1,{message:"Please provide at least one answer."}),
+  surah: z.string({}).min(1, { message: "Please select a surah." }),
 });
 
 export default function ProfileForm() {
@@ -52,6 +51,10 @@ export default function ProfileForm() {
   });
 
   const {
+    formState: {errors, isSubmitting},
+  
+  } = form;
+  const {
     fields: answersFields,
     append: appendAnswer,
     remove: removeAnswer,
@@ -64,13 +67,15 @@ export default function ProfileForm() {
     name: "answers",
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     const updatedValues = {
       ...values,
       surah: values.surah as Id<"Surahs">,
     };
-    console.log(updatedValues);
-    onCreate(updatedValues);
+    const result =await onCreate(updatedValues);
+    if(result ==="success"){
+      alert("Created succesfully")
+    }
   }
 
   const topics = useQuery(api.topics.get);
@@ -78,11 +83,13 @@ export default function ProfileForm() {
   const surahs = useQuery(api.surahs.get);
   const types = useQuery(api.types.get);
 
-  console.log("render");
+
 
   return (
-    <div className="w-full h-full flex flex-col flex-1 text-md pb-4 justify-center items-center overflow-hidden">
-      <Form {...form}>
+    <div className="w-full font-sans h-full flex flex-col flex-1 text-sm pb-4 justify-center items-center overflow-hidden">
+      <Form {...form}
+     
+      >
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 flex flex-col h-[98%] w-full overflow-auto p-2"
@@ -90,6 +97,7 @@ export default function ProfileForm() {
           <FormField
             control={form.control}
             name="topic"
+            
             render={({ field }) => (
               <ItemForm
                 field={field}
@@ -152,6 +160,7 @@ export default function ProfileForm() {
     key={answerField.id}
     control={form.control}
     answerIndex={answerIndex}
+    ansLength ={answersFields.length}
     onRemoveAnswer={() => removeAnswer(answerIndex)}
     types={types}
   />
@@ -162,27 +171,19 @@ export default function ProfileForm() {
             onClick={() =>
               appendAnswer({ types: [{ text: "", type: "", reference: "" }] })
             }
+            className="ml-auto"
           >
-            Add Answer
+           + Add Answer
           </Button>
 
           {/* Add Answer button */}
-          <Button
-            type="button"
-            className="w-fit text-white ml-auto"
-            onClick={() =>
-              appendAnswer({ types: [{ type: "", text: "", reference: "" }] })
-            }
-          >
-            + Add Answer
-          </Button>
-
+        
           {/* Submit button */}
-          <Button
+          <Button disabled={isSubmitting}
             className="w-[400px] ml-auto mr-auto text-lg text-white"
             type="submit"
           >
-            Submit
+           {isSubmitting? "Submitting":"Submit"}
           </Button>
         </form>
       </Form>

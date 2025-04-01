@@ -19,7 +19,6 @@ import {
 import { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Doc } from "@/convex/_generated/dataModel";
 
 interface FormSelectProps<T extends FieldValues, K extends Path<T>> {
   field: ControllerRenderProps<T, K>; // Ensure key is a valid field path
@@ -45,18 +44,19 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
   const [show, setShow] = useState(showInput == undefined ? false : true);
 
   return (
-    <FormItem className={` text-md flex flex-col text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[300px]"} w-full   `}>
+    <FormItem className={` text-md  h-fit flex flex-col sm:text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[200px]"} w-full   `}>
       <FormLabel className="text-md">{label}</FormLabel>
       {!show ? (
         <Select
           onValueChange={field.onChange}
           defaultValue={field.value as string}
+          
         >
           <FormControl>
-            <SelectTrigger>
+            <SelectTrigger className="">
               <SelectValue
                 placeholder={`Select a ${label.toLowerCase()} from list  `}
-                className="text-right  ml-auto  flex items-end justify-end rtl"
+                className="text-right  ml-auto  flex items-end justify-end rtl placeholder:text-white"
               />
             </SelectTrigger>
           </FormControl>

@@ -62,7 +62,7 @@ export const create = mutation({
       });
     });
 
-    return;
+    return "success";
 
     // const answers = await getManyFrom(db,"Answers","by_qId",)
   },
@@ -182,6 +182,50 @@ export const accept = mutation({
       asyncMap(types, async(t)=>{
         if (id == t._id && t.status !=="approved"){
           await ctx.db.patch(id,{status:"approved"})
+        }
+      })
+
+          })
+    
+
+  },
+});
+
+export const reject = mutation({
+  args: {
+    topicId: v.id("Topics"),
+    qId: v.id("Questions"),
+    ansId: v.id("Answers"),
+    typeIds: v.array(v.id("Types")),
+    note:v.string()
+  },
+  handler: async (ctx, { topicId, qId, ansId, typeIds,note }) => {
+    //change topic,ques,ans status.
+    // I will get topicId, ansId, qId.
+    const topic = await ctx.db.get(topicId);
+    if (topic?.status === "waiting") {
+      await ctx.db.patch(topicId, { status: "rejected" });
+    }
+
+    const ques = await ctx.db.get(qId);
+
+    if (ques?.status === "waiting") {
+      await ctx.db.patch(qId, { status: "rejected", rejectNote:note });
+    }
+
+    const ans = await ctx.db.get(ansId);
+
+    if (ans?.status === "waiting") {
+      await ctx.db.patch(ansId, { status: "rejected" });
+    }
+
+    const types = await ctx.db.query("Types").collect()
+
+    asyncMap(typeIds, async(id)=>{
+      
+      asyncMap(types, async(t)=>{
+        if (id == t._id && t.status ==="waiting"){
+          await ctx.db.patch(id,{status:"rejected"})
         }
       })
 

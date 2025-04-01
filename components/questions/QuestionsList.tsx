@@ -33,8 +33,8 @@ function QuestionsList({
   
     return surahMatch && searchMatch;
   });
-    
 
+console.log(qArr,"qArr")
   return (
     <div className="flex overflow-auto flex-col w-full ">
       <div className="flex gap-4 mb-10">
