@@ -28,6 +28,7 @@ function AcceptReject({
   typeIds: Id<"Types">[];
 }) {
   const [note,setNote]=useState("")
+  
   const accept = useMutation(api.admin.accept);
   const reject = useMutation(api.admin.reject)
   const onAccept = async () => {

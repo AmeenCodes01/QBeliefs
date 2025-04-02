@@ -29,6 +29,7 @@ interface FormSelectProps<T extends FieldValues, K extends Path<T>> {
   datalist?: ReactNode;
   showbtn?: boolean;
   showInput?: boolean;
+  edit:boolean;
 }
 
 function ItemForm<T extends FieldValues, K extends Path<T>>({
@@ -40,23 +41,26 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
   datalist,
   showbtn,
   showInput,
+  edit
 }: FormSelectProps<T, K>) {
   const [show, setShow] = useState(showInput == undefined ? false : true);
-
+  console.log(field.value," field value")
   return (
-    <FormItem className={` text-md  h-fit flex flex-col sm:text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[200px]"} w-full   `}>
+    <FormItem className={` text-md   h-fit flex flex-col sm:text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[200px]"} w-full   `}>
       <FormLabel className="text-md">{label}</FormLabel>
       {!show ? (
         <Select
+        disabled={edit}
           onValueChange={field.onChange}
           defaultValue={field.value as string}
-          
+          value={field.value as string}
         >
           <FormControl>
             <SelectTrigger className="">
               <SelectValue
+              
                 placeholder={`Select a ${label.toLowerCase()} from list  `}
-                className="text-right  ml-auto  flex items-end justify-end rtl placeholder:text-white"
+                className="text-right  ml-auto text-black flex items-end justify-end rtl placeholder:text-black"
               />
             </SelectTrigger>
           </FormControl>
@@ -64,7 +68,7 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
         </Select>
       ) : (
         <FormControl>
-          <Input placeholder="Enter new ..." {...field} />
+          <Input placeholder="Enter new ..." {...field} disabled={true} value={field.value} onChange={field.onChange}/>
         </FormControl>
       )}
       {showbtn == undefined ? (

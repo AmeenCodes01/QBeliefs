@@ -20,13 +20,15 @@ const AnswerItem = ({
     answerIndex,
     onRemoveAnswer,
     types,
-    ansLength
+    ansLength,
+    edit
   }: {
     control: any;
     answerIndex: number;
     onRemoveAnswer: () => void;
     ansLength: number;
-    types: Doc<"Types">[] | undefined
+    types: Doc<"Types">[] | undefined,
+    edit:boolean
   }) => {
     const {
       fields: typesFields,
@@ -60,6 +62,7 @@ const AnswerItem = ({
               render={({ field }) => (
                 <FormItem>
                  <ItemForm
+                  edit={edit}
                 field={field}
                 label="Type"
                 datalist={
@@ -82,7 +85,7 @@ const AnswerItem = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} placeholder="Text" className="mb-2" />
+                    <Input {...field} disabled={edit} placeholder="Text" className="mb-2" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,7 +98,7 @@ const AnswerItem = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} placeholder="Reference (optional)" />
+                    <Input {...field} disabled={edit} placeholder="Reference (optional)" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

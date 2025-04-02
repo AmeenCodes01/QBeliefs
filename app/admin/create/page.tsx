@@ -17,12 +17,59 @@ import ItemForm from "../components/ItemForm";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import DataList from "../components/DataList";
 import AnswerItem from "../components/AnswerItem";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
+
+
+interface TypeWithName {
+  _creationTime: number;
+  _id: Id<"Types">;
+  name: string;
+  sort_order: number;
+  status: string;
+}
+
+interface Type {
+  _creationTime: number;
+  _id: Id<"Ans_Types">;
+  a_id: Id<"Answers">;
+  content: string;
+  reference: string;
+  typeWithName: TypeWithName | null;
+  type_id: Id<"Types">;
+}
+
+interface Answer {
+  _creationTime: number;
+  _id: Id<"Answers">;
+  q_id: Id<"Questions">;
+  status: string;
+  type: Type[];
+}
+
+interface Topic {
+  _creationTime: number;
+  _id: Id<"Topics">;
+  status: string;
+  topic: string;
+}
+
+interface Question {
+  qTitle: string;
+  qStatus: string;
+  qSurah: Doc<"Surahs">;
+}
+
+type ResponseData = [Answer[], { topic: Topic[] }, Question];
 const formSchema = z.object({
+  tId: z.string().optional(),
   topic: z.string({}).min(1, { message: "Please select a topic." }),
   question: z.string({}).min(1, { message: "Please select a question." }),
+  qId: z.string().optional(),
   answers: z.array(
     z.object({
+      id: z.string().optional(),
       types: z.array(
         z.object({
           type: z.string().min(1, { message: "Please select a type." }),
@@ -35,25 +82,47 @@ const formSchema = z.object({
     }),
   ).min(1,{message:"Please provide at least one answer."}),
   surah: z.string({}).min(1, { message: "Please select a surah." }),
+  sId: z.string().optional()
 });
 
 export default function ProfileForm() {
+  
+  const params = useSearchParams();
+  const qId = params.get("qId")
+  
   const onCreate = useMutation(api.admin.create);
+  const qData = qId ? useQuery(api.admin.getAns,{qId:qId as Id<"Questions">}) as ResponseData | undefined : null
+  console.log(qData,"qData")
 
+
+  const [edit,setEdit]=useState(qId !== null ? true: false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topic: "",
-      question: "",
-      surah: "",
-      answers: [{ types: [{ text: "", type: "", reference: "" }] }],
-    },
+      topic: qData ? qData[1]?.topic[0].topic : "",
+      tId: qData ? qData[1]?.topic[0]._id : undefined,
+      question: qData ? qData[2].qTitle : "",
+      qId: qData ? qData[0][0]?.q_id : undefined,
+      surah: qData ? qData[2].qSurah.surah : "",
+      sId: qData ? qData[2].qSurah._id : undefined,
+      answers: qData ? qData[0].map(answer => ({
+        id: answer._id,
+        types: answer.type.map(t => ({
+          id: t._id,
+          type: t.type_id,
+          text: t.content,
+          reference: t.reference,
+          typeId: t.type_id // Duplicate if needed for your logic
+        }))
+      })) : [{ types: [{ text: "", type: "", reference: "" }] }]
+    }
   });
 
   const {
-    formState: {errors, isSubmitting},
+    formState: {errors, isSubmitting,}
   
   } = form;
+
   const {
     fields: answersFields,
     append: appendAnswer,
@@ -62,15 +131,18 @@ export default function ProfileForm() {
     control: form.control,
     name: "answers",
   });
+
   const answers = useWatch({
     control: form.control,
     name: "answers",
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values,"values")
     const updatedValues = {
       ...values,
       surah: values.surah as Id<"Surahs">,
+      //edit kalia we will add ids of everything. 
     };
     const result =await onCreate(updatedValues);
     if(result ==="success"){
@@ -84,7 +156,28 @@ export default function ProfileForm() {
   const types = useQuery(api.types.get);
 
 
-
+  useEffect(() => {
+    if (qData) {
+      form.reset({
+        topic:  qData[1]?.topic[0]._id ,
+      tId:  qData[1]?.topic[0]._id ,
+      question:  qId as string,
+      qId:  qData[0][0]?.q_id ,
+      surah:  qData[2]?.qSurah._id ,
+      sId:  qData[2]?.qSurah._id ,
+      answers: qData[0].map(answer => ({
+        id: answer._id,
+        types: answer.type.map(t => ({
+          id: t._id,
+          type: t.type_id,
+          text: t.content,
+          reference: t.reference,
+          typeId: t.type_id // Duplicate if needed for your logic
+        }))
+      }))
+      });
+    }
+  }, [qData]);
   return (
     <div className="w-full font-sans h-full flex flex-col flex-1 text-sm pb-4 justify-center items-center overflow-hidden">
       <Form {...form}
@@ -98,10 +191,13 @@ export default function ProfileForm() {
             control={form.control}
             name="topic"
             
-            render={({ field }) => (
+            render={({ field }) => {
+              console.log(field.value,"value")
+              return(
               <ItemForm
                 field={field}
                 label="Topic"
+                edit={edit}
                 datalist={
                   <DataList
                     data={topics as Doc<"Topics">[]}
@@ -112,13 +208,14 @@ export default function ProfileForm() {
                   />
                 }
               />
-            )}
+            )}}
           />
           <FormField
             control={form.control}
             name="surah"
             render={({ field }) => (
               <ItemForm
+              edit={edit}
                 field={field}
                 label="Surah"
                 datalist={
@@ -137,8 +234,10 @@ export default function ProfileForm() {
           <FormField
             control={form.control}
             name="question"
+          
             render={({ field }) => (
               <ItemForm
+              edit={edit}
                 field={field}
                 label="Question"
                 datalist={
@@ -163,6 +262,7 @@ export default function ProfileForm() {
     ansLength ={answersFields.length}
     onRemoveAnswer={() => removeAnswer(answerIndex)}
     types={types}
+    edit={edit}
   />
 ))}
 

@@ -129,6 +129,13 @@ export const getAns = query({
       args.qId,
     );
     const ques = await ctx.db.get(args.qId);
+    const surahQues = ques ? 
+  //  await getOneFrom(ctx.db,"Surah_Ques","q_id",ques?._id) 
+  await ctx.db.query("Surah_Ques").withIndex("q_id",q=>q.eq("q_id",ques._id)).first()
+    : null
+    const qSurah = surahQues ?   await ctx.db.get(surahQues.s_id)
+:null
+    console.log(qSurah,"qSurah")
     const AnsWithTypes = await asyncMap(
       answers.filter(Boolean),
       async (ans) => {
@@ -141,7 +148,7 @@ export const getAns = query({
     const AnsTopicsQues = [
       [...AnsWithTypes],
       { topic },
-      { qTitle: ques?.title },
+      { qTitle: ques?.title, qStatus:ques?.status, qSurah },
     ];
 
     return AnsTopicsQues;
@@ -197,9 +204,10 @@ export const reject = mutation({
     qId: v.id("Questions"),
     ansId: v.id("Answers"),
     typeIds: v.array(v.id("Types")),
-    note:v.string()
+    qNote:v.optional(v.string()),
+    aNote:v.optional(v.string())  
   },
-  handler: async (ctx, { topicId, qId, ansId, typeIds,note }) => {
+  handler: async (ctx, { topicId, qId, ansId, typeIds,qNote,aNote }) => {
     //change topic,ques,ans status.
     // I will get topicId, ansId, qId.
     const topic = await ctx.db.get(topicId);
@@ -210,13 +218,13 @@ export const reject = mutation({
     const ques = await ctx.db.get(qId);
 
     if (ques?.status === "waiting") {
-      await ctx.db.patch(qId, { status: "rejected", rejectNote:note });
+      await ctx.db.patch(qId, { status: ques?.status === "waiting" ? "rejected":ques.status, rejectNote:qNote });
     }
 
     const ans = await ctx.db.get(ansId);
 
     if (ans?.status === "waiting") {
-      await ctx.db.patch(ansId, { status: "rejected" });
+      await ctx.db.patch(ansId, { status: "rejected", });
     }
 
     const types = await ctx.db.query("Types").collect()

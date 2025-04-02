@@ -57,7 +57,12 @@ function QuestionCard({
       >
         <div>
           {href ? (
-            <Link href={`${href}/${id}`}>
+            <Link href={{pathname:`${href}`,
+            query:{qId: id}
+          
+          }}
+              
+            >
               <CardHeader
                 className="mt-0 flex flex-row-reverse"
                 // onClick={() =>

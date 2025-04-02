@@ -23,7 +23,7 @@ import { useQuery } from 'convex/react';
                index={i}
                 title={q?.question.title as string}
                 style={"border-[1px] "}
-                href={"approve"}
+                href={"create"}
                 />
            
             
