@@ -72,7 +72,9 @@ const formSchema = z.object({
       id: z.string().optional(),
       types: z.array(
         z.object({
+          id:z.string().optional(),
           type: z.string().min(1, { message: "Please select a type." }),
+          typeId:z.string().optional(),
           text: z
             .string()
             .min(1, { message: "Please provide text for the type." }),
@@ -82,7 +84,6 @@ const formSchema = z.object({
     }),
   ).min(1,{message:"Please provide at least one answer."}),
   surah: z.string({}).min(1, { message: "Please select a surah." }),
-  sId: z.string().optional()
 });
 
 export default function ProfileForm() {
@@ -91,35 +92,26 @@ export default function ProfileForm() {
   const qId = params.get("qId")
   
   const onCreate = useMutation(api.admin.create);
+  const onSave = useMutation(api.admin.save)
   const qData = qId ? useQuery(api.admin.getAns,{qId:qId as Id<"Questions">}) as ResponseData | undefined : null
-  console.log(qData,"qData")
+console.log(qData,"qData")
 
 
   const [edit,setEdit]=useState(qId !== null ? true: false)
+  //edit set true disables all inputs. I referred to edit as edit mode so initially all should be disabled={true}
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topic: qData ? qData[1]?.topic[0].topic : "",
-      tId: qData ? qData[1]?.topic[0]._id : undefined,
-      question: qData ? qData[2].qTitle : "",
-      qId: qData ? qData[0][0]?.q_id : undefined,
-      surah: qData ? qData[2].qSurah.surah : "",
-      sId: qData ? qData[2].qSurah._id : undefined,
-      answers: qData ? qData[0].map(answer => ({
-        id: answer._id,
-        types: answer.type.map(t => ({
-          id: t._id,
-          type: t.type_id,
-          text: t.content,
-          reference: t.reference,
-          typeId: t.type_id // Duplicate if needed for your logic
-        }))
-      })) : [{ types: [{ text: "", type: "", reference: "" }] }]
+      topic: "",
+      
+      question:  "",
+      surah:  "",
+      answers:  [{ types: [{ text: "", type: "", reference: "" }] }]
     }
   });
 
   const {
-    formState: {errors, isSubmitting,}
+    formState: {errors, isSubmitting,}, setValue
   
   } = form;
 
@@ -138,16 +130,17 @@ export default function ProfileForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values,"values")
-    const updatedValues = {
-      ...values,
-      surah: values.surah as Id<"Surahs">,
-      //edit kalia we will add ids of everything. 
-    };
-    const result =await onCreate(updatedValues);
-    if(result ==="success"){
-      alert("Created succesfully")
-    }
+    console.log(values, " values")
+   //   await onSave(values)
+    // const updatedValues = {
+    //   ...values,
+    //   surah: values.surah as Id<"Surahs">,
+    //   //edit kalia we will add ids of everything. 
+    // };
+    // const result =await onCreate(updatedValues);
+    // if(result ==="success"){
+    //   alert("Created succesfully")
+    // }
   }
 
   const topics = useQuery(api.topics.get);
@@ -155,6 +148,7 @@ export default function ProfileForm() {
   const surahs = useQuery(api.surahs.get);
   const types = useQuery(api.types.get);
 
+  console.log(topics)
 
   useEffect(() => {
     if (qData) {
@@ -164,20 +158,43 @@ export default function ProfileForm() {
       question:  qId as string,
       qId:  qData[0][0]?.q_id ,
       surah:  qData[2]?.qSurah._id ,
-      sId:  qData[2]?.qSurah._id ,
       answers: qData[0].map(answer => ({
         id: answer._id,
         types: answer.type.map(t => ({
           id: t._id,
           type: t.type_id,
+          typeId: t.type_id,
           text: t.content,
           reference: t.reference,
-          typeId: t.type_id // Duplicate if needed for your logic
         }))
       }))
       });
     }
   }, [qData]);
+
+const findLabel = (type: "Topic" | "Question", id: string) => {
+  if (!id) return "";
+  
+  if (type === "Topic") {
+    const topic = topics?.find(t => t._id === id);
+     setValue("topic",topic ? topic.topic:"")
+    return topic ? topic?.topic as string : ""; // Assuming 'title' is the label field
+  }
+
+  if(type ==="Question"){
+
+    const ques = questions?.find(q=>q._id == id)
+     setValue("question", ques?.title as string)
+    return ques? ques.title : ""
+  }
+
+  const resetInput = (type:"Topic"| "Question")=>{
+    if(type=="Topic"){
+
+      setValue("topic", qData && qData[1]?.topic[0]._id as string)
+    }
+  }
+}
   return (
     <div className="w-full font-sans h-full flex flex-col flex-1 text-sm pb-4 justify-center items-center overflow-hidden">
       <Form {...form}
@@ -192,11 +209,12 @@ export default function ProfileForm() {
             name="topic"
             
             render={({ field }) => {
-              console.log(field.value,"value")
+             
               return(
               <ItemForm
                 field={field}
                 label="Topic"
+                findLabel = {findLabel}
                 edit={edit}
                 datalist={
                   <DataList
@@ -240,6 +258,7 @@ export default function ProfileForm() {
               edit={edit}
                 field={field}
                 label="Question"
+                findLabel = {findLabel}
                 datalist={
                   <DataList
                     data={questions as Doc<"Questions">[]}
@@ -279,13 +298,29 @@ export default function ProfileForm() {
           {/* Add Answer button */}
         
           {/* Submit button */}
+          {qId ?
+          <div className="flex flex-row gap-3 w-full justify-center">
+
+          <Button type="button"  onClick={()=> setEdit(false)}>
+{edit ?"Edit": "Editing.."}
+          </Button>
+          <Button type="submit">
+Save
+          </Button>
+          <Button type="button">
+Upload
+          </Button>
+          </div>
+          :
           <Button disabled={isSubmitting}
             className="w-[400px] ml-auto mr-auto text-lg text-white"
             type="submit"
           >
            {isSubmitting? "Submitting":"Submit"}
           </Button>
-        </form>
+}       
+
+ </form>
       </Form>
     </div>
   );

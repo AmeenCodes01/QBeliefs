@@ -11,6 +11,7 @@ async function Answers({ params }: { params: Promise<{ qId: string }> }) {
   const qId = slug as Id<"Questions">;
   const answers = await fetchQuery(api.answers.get, { qId });
   const question = await fetchQuery(api.questions.getById, { qId });
+  
   if (answers?.length == 0) {
     return <span>No answers yet</span>;
   }

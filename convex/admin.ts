@@ -11,6 +11,78 @@ import { asyncMap } from "convex-helpers";
 import { Id } from "./_generated/dataModel";
 import { AnsTypes } from "./answers";
 
+
+export const save = mutation({
+  args:{
+    topic: v.union(v.string(), v.id("Topics")),
+    tId: v.id("Topics"),
+    question: v.union(v.string(), v.id("Questions")),
+    qId: v.id("Questions"),
+    surah: v.id("Surahs"),
+    answers: v.array(
+      v.object({
+        id: v.id("Answers"),
+        types: v.array(
+          v.object({
+            id: v.id("Ans_Types"),
+            type: v.id("Types"),
+            text: v.string(),
+            reference: v.optional(v.string()),
+          }),
+        ),
+      }),
+    ),},
+
+  handler: async (ctx, { topic, question, answers, qId, surah, tId }) => {
+    
+    const Topic =await  ctx.db.get(tId);
+    if(Topic?.topic !== topic){
+      await ctx.db.patch(tId,{topic:topic})
+    }
+    const ques = await ctx.db.get(qId);
+    if(ques?.title !== question){
+      await ctx.db.patch(qId,{title:question})
+    }
+
+    const surahQues = ques ? 
+  //  await getOneFrom(ctx.db,"Surah_Ques","q_id",ques?._id) 
+  await ctx.db.query("Surah_Ques").withIndex("q_id",q=>q.eq("q_id",ques._id)).first()
+    : null
+
+    if(surahQues && (surahQues?.s_id !== surah)){
+      //if surah changed, we need to fix the relation in Ques_Surah.  
+      await ctx.db.patch(surahQues._id,{s_id: surah})
+
+    }
+
+
+    //check if type changed, (then change typeid)
+    //check if text changed
+    //check if cont
+    const AnsWithTypes = await asyncMap(
+      answers.filter(Boolean),
+      async (ans) => {
+        const typesWithName = await AnsTypes(ctx, ans.id);
+
+        return { ...ans, type: typesWithName };
+      },
+    );
+    console.log(AnsWithTypes,"ansWithTtpes")
+
+    //we check types of answers now & change as needed. answer Id (_id) remains same. type
+    // await asyncMap(answers, async (ans, a)=>{
+    //   await asyncMap(ans.types, async (type,t)=>{
+    //     //type id
+    //    if(type.type !== AnsWithTypes[a].type[t].type_id){
+    //     //patch type id in Ans_Types. 
+    //       await ctx.db.patch(type.id,{type_id: type.type})
+    //    }
+    //   }) 
+    // })
+  }
+})
+
+
 export const create = mutation({
   args: {
     topic: v.union(v.string(), v.id("Topics")),
@@ -136,6 +208,7 @@ export const getAns = query({
     const qSurah = surahQues ?   await ctx.db.get(surahQues.s_id)
 :null
     console.log(qSurah,"qSurah")
+
     const AnsWithTypes = await asyncMap(
       answers.filter(Boolean),
       async (ans) => {
