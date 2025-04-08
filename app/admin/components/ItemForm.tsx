@@ -29,8 +29,18 @@ interface FormSelectProps<T extends FieldValues, K extends Path<T>> {
   datalist?: ReactNode;
   showbtn?: boolean;
   showInput?: boolean;
-  edit:boolean;
-  findLabel?: (type: "Topic" | "Question", id: string)=> string | undefined
+  editInput:boolean;
+  answerIndex?:number;
+  typeIndex?:number;
+
+  findLabel?:( args:{
+    type: "Topic" | "Question"| "Type";
+    id?: string;
+    text?: string;
+    answerIndex?:number;
+    typeIndex?:number;
+  })=> void;
+  resetField?: (type: "Topic" | "Question")=> void;
   
 }
 
@@ -43,28 +53,45 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
   datalist,
   showbtn,
   showInput,
-  edit,
-  findLabel
+  editInput,
+  findLabel,
+  resetField,
+  answerIndex,
+  typeIndex
 }: FormSelectProps<T, K>) {
   const [show, setShow] = useState(showInput == undefined ? false : true);  
   // const [initialValue,setInitialValue] = useState(findLabel && findLabel("topic",field.value))
 
-  useEffect(()=>{
-    if(show){
-     findLabel && findLabel(label as  "Topic" | "Question",field.value)
-    }
+  // useEffect(()=>{
+  //   console.log("UseEffect run")
+  //   if(show){
+  //    findLabel && findLabel(label as  "Topic" | "Question",field.value)
+  //   }else{
+  //     resetField && resetField(label as  "Topic" | "Question")
+  //   }
 
-  },[show])
-
+  // },[show])
+// console.log(label=="Question" && field.value.title, " field")
   return (
+    
     <FormItem className={` text-md   h-fit flex flex-col sm:text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[200px]"} w-full   `}>
       <FormLabel className="text-md">{label}</FormLabel>
       {!show ? (
         <Select
-        disabled={edit}
-          onValueChange={field.onChange}
-//          defaultValue={field.value as string}
-          value={field.value as string}
+        disabled={editInput}
+        onValueChange={(val)=>{
+          if(label=="Surah"){
+            field.onChange(val)
+          }else{
+
+            findLabel && findLabel({id:val,type:label as "Topic"|"Question"|"Type",answerIndex,typeIndex})
+          }
+        
+        }
+        }
+      
+                 // defaultValue={field.value as string}
+          value={label=="Type" ?field.value.type :field.value.id}
         >
           <FormControl>
             <SelectTrigger className="">
@@ -79,7 +106,8 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
         </Select>
       ) : (
         <FormControl>
-          <Input placeholder="Enter new ..." {...field} disabled={edit} value={ field.value} onChange={field.onChange}/>
+          {/* We can't create a {} for  */}
+          <Input placeholder="Enter new ..." {...field} disabled={editInput} value={ label=="Type" ? field.value.text: field.value.title} onChange={(e)=> findLabel && findLabel({type:label as "Topic"|"Question"|"Type",text:e.target.value,answerIndex,typeIndex})   }/>
         </FormControl>
       )}
       {showbtn == undefined ? (

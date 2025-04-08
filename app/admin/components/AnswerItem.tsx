@@ -15,21 +15,32 @@ import { api } from "@/convex/_generated/api";
 import ItemForm from "../components/ItemForm";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import DataList from "../components/DataList";
+
 const AnswerItem = ({
     control,
     answerIndex,
     onRemoveAnswer,
     types,
     ansLength,
-    edit
+    editInput,
+    findLabel
   }: {
     control: any;
     answerIndex: number;
     onRemoveAnswer: () => void;
     ansLength: number;
     types: Doc<"Types">[] | undefined,
-    edit:boolean
+    editInput:boolean,
+    findLabel?:( args:{
+      type: "Topic" | "Question"|"Type";
+      id?: string;
+      text?: string;
+      answerIndex?:number;
+      typeIndex?:number;
+    })=> void;
+
   }) => {
+
     const {
       fields: typesFields,
       append: appendType,
@@ -39,6 +50,11 @@ const AnswerItem = ({
       name: `answers.${answerIndex}.types`,
     });
   
+    const onChangeType = (typeIndex:number,id:string,text:string)=>{
+     findLabel && findLabel({type:"Type",id,text, typeIndex,answerIndex})
+    }
+
+
     return (
       <div className="space-y-4 border p-4 rounded-md mb-4">
         <div className="flex justify-between items-center">
@@ -58,14 +74,18 @@ const AnswerItem = ({
           <div key={typeField.id} className="space-y-2 border-2 h-fit p-2 rounded">
             <FormField
               control={control}
-              name={`answers.${answerIndex}.types.${typeIndex}.type`}
+              name={`answers.${answerIndex}.types.${typeIndex}`}
               render={({ field }) => (
                 <FormItem>
                  <ItemForm
-                  edit={edit}
-                field={field}
-                label="Type"
-                datalist={
+                  editInput={editInput}
+                  field={field}
+                  findLabel={findLabel}
+                  answerIndex={answerIndex}
+                  typeIndex={typeIndex}
+                  showbtn={false}
+                  label="Type"
+                  datalist={
                   <DataList
                     data={types as Doc<"Types">[]}
                     mapFn={(s) => ({
@@ -85,7 +105,7 @@ const AnswerItem = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} disabled={edit} placeholder="Text" className="mb-2" />
+                    <Input {...field} disabled={editInput} placeholder="Text" className="mb-2" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +118,7 @@ const AnswerItem = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} disabled={edit} placeholder="Reference (optional)" />
+                    <Input {...field} disabled={editInput} placeholder="Reference (optional)" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
