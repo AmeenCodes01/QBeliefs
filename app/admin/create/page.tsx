@@ -5,7 +5,7 @@ import { useFieldArray, UseFieldArrayRemove, useForm, useWatch } from "react-hoo
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormField } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ItemForm from "../components/ItemForm";
@@ -15,6 +15,7 @@ import AnswerItem from "../components/AnswerItem";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getAuthSessionId } from "@convex-dev/auth/server";
+import { Input } from "@/components/ui/input";
 
 interface TypeWithName {
   _creationTime: number;
@@ -429,23 +430,34 @@ const deleteAnsType=async(answerIndex:number,typeIndex:number, remove:UseFieldAr
           <FormField
             control={form.control}
             name="question"
-            render={({ field }) => (
+            render={({ field }) => 
+              
+              editMode ?
+              <FormItem className="h-fit py-10 ">
+                <FormLabel className="text-md">Question</FormLabel>
+<FormControl>
+
+                <Input placeholder="Enter new ..." {...field} disabled={editInput} value={  field.value.title} onChange={(e)=> findLabel && findLabel({type:"Question",text:e.target.value})   }/>
+</FormControl>
+              </FormItem>
+
+              :
               <ItemForm
                 editInput={editInput}
                 field={field}
                 label="Question"
                 findLabel={findLabel}
-                datalist={
+                datalist={!editMode ?
                   <DataList
                     data={questions as Doc<"Questions">[]}
                     mapFn={(q) => ({
                       value: q._id,
                       label: q.title,
                     })}
-                  />
+                  />:null
                 }
               />
-            )}
+            }
           />
 
           {answersFields.map((answerField, answerIndex) => (

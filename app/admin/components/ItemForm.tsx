@@ -60,18 +60,8 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
   typeIndex
 }: FormSelectProps<T, K>) {
   const [show, setShow] = useState(showInput == undefined ? false : true);  
-  // const [initialValue,setInitialValue] = useState(findLabel && findLabel("topic",field.value))
 
-  // useEffect(()=>{
-  //   console.log("UseEffect run")
-  //   if(show){
-  //    findLabel && findLabel(label as  "Topic" | "Question",field.value)
-  //   }else{
-  //     resetField && resetField(label as  "Topic" | "Question")
-  //   }
 
-  // },[show])
-// console.log(label=="Question" && field.value.title, " field")
   return (
     
     <FormItem className={` text-md   h-fit flex flex-col sm:text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[200px]"} w-full   `}>

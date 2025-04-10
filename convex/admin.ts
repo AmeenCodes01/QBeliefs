@@ -135,16 +135,17 @@ export const create = mutation({
       const topicQues = await getOneFrom(ctx.db, "Topic_Ques","q_id",question.id as Id<"Questions">)
       topicQues && await ctx.db.patch(topicQues?._id,{t_id:topic.id as Id<"Topics">})
 
-      const answers = await getManyFrom(ctx.db,"Answers","by_qId",quesId as Id<"Questions">,"q_id");
-      const ansIds = answers?.map(ans=> ans._id).filter(Boolean)
-      console.log(ansIds, quesId, " editing ans ques")
-//should put a check if q_id changed prev or not. but whatever
-      if(ansIds ){
-        //there are no ansIds. get them by making a call or recieve from client.
-        await asyncMap(ansIds,async(id)=>{
-        id!==null && await ctx.db.patch(id as Id<"Answers">,{q_id:quesId as Id<"Questions"> })
-        })
-      }
+      //get from old question. 
+//       const answers = await getManyFrom(ctx.db,"Answers","by_qId",quesId as Id<"Questions">,"q_id");
+//       const ansIds = answers?.map(ans=> ans._id).filter(Boolean)
+//       console.log(ansIds, quesId, " editing ans ques")
+// //should put a check if q_id changed prev or not. but whatever
+//       if(ansIds ){
+//         //there are no ansIds. get them by making a call or recieve from client.
+//         await asyncMap(ansIds,async(id)=>{
+//         id!==null && await ctx.db.patch(id as Id<"Answers">,{q_id:quesId as Id<"Questions"> })
+//         })
+//       }
 
     }else if(question.id=="" && question.title!==""){
       //create
