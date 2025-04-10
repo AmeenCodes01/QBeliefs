@@ -83,62 +83,201 @@ export const save = mutation({
 })
 
 
+
 export const create = mutation({
   args: {
-    topic: v.union(v.string(), v.id("Topics")),
-    question: v.union(v.string(), v.id("Questions")),
-    surah: v.id("Surahs"),
-    answers: v.array(
+    topic: v.object({id:v.union(v.string(), v.id("Topics")), title:v.optional(v.string())}),
+    question: v.object({id:v.union(v.string(), v.id("Questions")), title:v.optional(v.string())}),
+    surah: v.optional(v.id("Surahs")),
+    answers: v.optional(v.array(
       v.object({
-        types: v.array(
+        id:v.optional(  v.union(v.string(),v.id("Answers")) ),
+        types: v.optional(v.array(
           v.object({
             type: v.string(),
             text: v.string(),
+            id: v.optional(  v.union(v.string(),v.id("Ans_Types")) ),
             reference: v.optional(v.string()),
           }),
-        ),
+        )),
       }),
-    ),
+    )),
+  
   },
+
   handler: async (ctx, { topic, question, surah, answers }) => {
-    console.log("helo");
-    const topicId = await checkAndCreate(ctx, topic, "Topics");
-    console.log(topicId, "topicId");
-    const quesId = await checkAndCreate(ctx, question, "Questions");
+    let topicId = topic.id
+    let quesId = question.id
+    const status = "waiting"
+   //if topic or question change, we need to patch. 
+    
+    if(topic?.id !=="" && topic?.title!==""){
+      //id & title means edit. 
+      await ctx.db.patch(topic.id as Id<"Topics">, {topic:topic.title ?? ""}) 
+      //for q, patch topicId too.
+      
+     
 
-    const surahQues = await ctx.db.insert("Surah_Ques", {
-      s_id: surah,
-      q_id: quesId as Id<"Questions">,
-    });
-    const topicQues = await ctx.db.insert("Topic_Ques", {
-      t_id: topicId as Id<"Topics">,
-      q_id: quesId as Id<"Questions">,
-    });
+    }else if(topic.id=="" && topic.title!==""){
+      //create new
+       topicId = await ctx.db.insert("Topics", { topic: topic.title as string, status });
+       
+       
+ 
+    }
 
-    await asyncMap(answers, async (ans) => {
-      //types:[{ }]
-      const ansId = await ctx.db.insert("Answers", {
+
+
+    if(question.id !=="" && question?.title!==""){
+      //edit
+      await ctx.db.patch(question.id as Id<"Questions">,{title:question?.title as string})
+      // use patch, so need relation id 
+      const topicQues = await getOneFrom(ctx.db, "Topic_Ques","q_id",question.id as Id<"Questions">)
+      topicQues && await ctx.db.patch(topicQues?._id,{t_id:topic.id as Id<"Topics">})
+
+      const answers = await getManyFrom(ctx.db,"Answers","by_qId",quesId as Id<"Questions">,"q_id");
+      const ansIds = answers?.map(ans=> ans._id).filter(Boolean)
+      console.log(ansIds, quesId, " editing ans ques")
+//should put a check if q_id changed prev or not. but whatever
+      if(ansIds ){
+        //there are no ansIds. get them by making a call or recieve from client.
+        await asyncMap(ansIds,async(id)=>{
+        id!==null && await ctx.db.patch(id as Id<"Answers">,{q_id:quesId as Id<"Questions"> })
+        })
+      }
+
+    }else if(question.id=="" && question.title!==""){
+      //create
+      const lastQues = await ctx.db.query("Questions").order("desc").take(1);
+       quesId = await ctx.db.insert("Questions", {
+        title: question.title as string,
+        q_no: lastQues.length > 0 ? (lastQues[0]?.q_no ?? 0) + 1 : 1,
+        status:status ,
+        // Default to 1 if no previous questions exist
+      });
+     
+      //link with topic
+      const topicQues = await ctx.db.insert("Topic_Ques", {
+        t_id: topicId as Id<"Topics">,
         q_id: quesId as Id<"Questions">,
-        status: "waiting",
+      });
+    }
+
+    //const quesId = await checkAndCreate(ctx, question, "Questions");
+    if(surah){
+      const surahQues = await ctx.db.insert("Surah_Ques", {
+        s_id: surah,
+        q_id: quesId as Id<"Questions">,
+      });
+    }
+
+
+if(answers){
+
+  await asyncMap(answers, async (ans) => {
+    //types:[{ }]
+    let ansId = ans.id
+    if(ans.id ===""){
+
+       ansId = await ctx.db.insert("Answers", {
+        q_id: quesId as Id<"Questions">,
+        status,
       });
 
-      await asyncMap(ans.types, async (part) => {
-        const typeId = await checkAndCreate(ctx, part.type, "Types");
+    }
 
-        const ansType = await ctx.db.insert("Ans_Types", {
-          a_id: ansId as Id<"Answers">,
-          type_id: typeId as Id<"Types">,
-          content: part.text,
-          reference: part?.reference ?? "",
-        });
+if(ans.types){
+
+await asyncMap(ans.types, async (type) => {
+console.log(type, " type")
+  if(type.id===""){
+    //create
+
+      const ansType = await ctx.db.insert("Ans_Types", {
+        a_id: ansId as Id<"Answers">,
+        type_id: type.type as Id<"Types">,
+        content: type.text,
+        reference: type?.reference ?? "",
       });
-    });
+    
+    }else{
+      await ctx.db.patch(type.id as Id<"Ans_Types">, {
+        type_id: type.type as Id<"Types">,
+        content: type.text,
+        reference: type?.reference ?? "",
+      });
+    }
+
+
+
+});
+
+}
+  });
+}
 
     return "success";
 
     // const answers = await getManyFrom(db,"Answers","by_qId",)
   },
 });
+
+// export const create = mutation({
+//   args: {
+//     topic: v.union(v.string(), v.id("Topics")),
+//     question: v.union(v.string(), v.id("Questions")),
+//     surah: v.id("Surahs"),
+//     answers: v.array(
+//       v.object({
+//         types: v.array(
+//           v.object({
+//             type: v.string(),
+//             text: v.string(),
+//             reference: v.optional(v.string()),
+//           }),
+//         ),
+//       }),
+//     ),
+//   },
+//   handler: async (ctx, { topic, question, surah, answers }) => {
+//     console.log("helo");
+//     const topicId = await checkAndCreate(ctx, topic, "Topics");
+//     console.log(topicId, "topicId");
+//     const quesId = await checkAndCreate(ctx, question, "Questions");
+
+//     const surahQues = await ctx.db.insert("Surah_Ques", {
+//       s_id: surah,
+//       q_id: quesId as Id<"Questions">,
+//     });
+//     const topicQues = await ctx.db.insert("Topic_Ques", {
+//       t_id: topicId as Id<"Topics">,
+//       q_id: quesId as Id<"Questions">,
+//     });
+
+//     await asyncMap(answers, async (ans) => {
+//       //types:[{ }]
+//       const ansId = await ctx.db.insert("Answers", {
+//         q_id: quesId as Id<"Questions">,
+//         status: "waiting",
+//       });
+
+//       await asyncMap(ans.types, async (part) => {
+//         const typeId = await checkAndCreate(ctx, part.type, "Types");
+
+//         const ansType = await ctx.db.insert("Ans_Types", {
+//           a_id: ansId as Id<"Answers">,
+//           type_id: typeId as Id<"Types">,
+//           content: part.text,
+//           reference: part?.reference ?? "",
+//         });
+//       });
+//     });
+
+//     return "success";
+
+//     // const answers = await getManyFrom(db,"Answers","by_qId",)
+//   },
+// });
 
 export const getWaitingQues = query({
   args: {},
@@ -234,7 +373,7 @@ export const accept = mutation({
     topicId: v.id("Topics"),
     qId: v.id("Questions"),
     ansId: v.id("Answers"),
-    typeIds: v.array(v.id("Types"))
+    typeIds: v.optional(v.array(v.id("Types")))
   },
   handler: async (ctx, { topicId, qId, ansId, typeIds }) => {
     //change topic,ques,ans status.
@@ -256,19 +395,21 @@ export const accept = mutation({
     }
 
     const types = await ctx.db.query("Types").collect()
+if(typeIds){
 
-    asyncMap(typeIds, async(id)=>{
-      
-      asyncMap(types, async(t)=>{
-        if (id == t._id && t.status !=="approved"){
-          await ctx.db.patch(id,{status:"approved"})
-        }
-      })
-
-          })
+  asyncMap(typeIds, async(id)=>{
     
+    asyncMap(types, async(t)=>{
+      if (id == t._id && t.status !=="approved"){
+        await ctx.db.patch(id,{status:"approved"})
+      }
+    })
 
-  },
+        })
+  
+
+}
+}
 });
 
 export const reject = mutation({
@@ -323,7 +464,9 @@ async function checkAndCreate(
 ) {
   let ID = id; // Keep track of the final ID
   const status = "waiting";
+
   if (label === "Questions") {
+    // if id="" create. 
     try {
       const checkQues = await ctx.db.get(id as Id<"Questions">);
     } catch (error) {

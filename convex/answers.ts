@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { MutationCtx, query, QueryCtx } from "./_generated/server";
+import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import {
   getAll,
   getOneFrom,
@@ -37,6 +37,37 @@ export const get = query({
 
     const result = await getAns(ctx,qId,status?status:"approved")
     return result
+    
+  },
+});
+
+export const delAns = mutation({
+  args: { ansIds: v.array(v.id("Answers")),   
+     },
+  handler: async (ctx, { ansIds, }) => {
+await asyncMap(ansIds, async(id)=>{
+  const allAnsTypes = await getManyFrom(ctx.db,"Ans_Types", "by_aId",id,"a_id")
+  const Ids = allAnsTypes?.map(a=>a._id).filter(Boolean)
+  if(Ids){
+    await asyncMap(Ids,async(i)=> await ctx.db.delete(i))
+  }
+await ctx.db.delete(id)
+})
+
+    // for each ans, remove Ans_Types.
+    
+  },
+});
+
+
+export const delAnsType = mutation({
+  args: { id: (v.id("Ans_Types")),   
+     },
+  handler: async (ctx, { id, }) => {
+await ctx.db.delete(id)
+
+
+    // for each ans, remove Ans_Types.
     
   },
 });

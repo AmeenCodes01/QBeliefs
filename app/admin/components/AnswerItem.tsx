@@ -1,5 +1,5 @@
 
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, UseFieldArrayRemove, useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +23,9 @@ const AnswerItem = ({
     types,
     ansLength,
     editInput,
-    findLabel
+    findLabel,
+    editMode,
+    onRemoveType
   }: {
     control: any;
     answerIndex: number;
@@ -37,8 +39,9 @@ const AnswerItem = ({
       text?: string;
       answerIndex?:number;
       typeIndex?:number;
+      editMode:boolean;
     })=> void;
-
+   onRemoveType: (answerIndex: number, typeIndex: number, remove: UseFieldArrayRemove) => Promise<void>;
   }) => {
 
     const {
@@ -51,9 +54,8 @@ const AnswerItem = ({
     });
   
     const onChangeType = (typeIndex:number,id:string,text:string)=>{
-     findLabel && findLabel({type:"Type",id,text, typeIndex,answerIndex})
+     findLabel && findLabel({type:"Type" as "Type"|"Topic"|"Question",id,text, typeIndex,answerIndex})
     }
-
 
     return (
       <div className="space-y-4 border p-4 rounded-md mb-4">
@@ -130,7 +132,14 @@ const AnswerItem = ({
               variant="destructive"
               disabled ={typesFields.length ==1} 
               size="sm"
-              onClick={() => typesFields.length > 1 ? removeType(typeIndex):null}
+              onClick={async() =>{
+                if(typesFields.length > 1){
+
+                  onRemoveType(answerIndex,typeIndex,removeType)
+                }
+              }
+              
+                }
             >
               Remove Type
             </Button>
@@ -141,7 +150,7 @@ const AnswerItem = ({
           type="button"
          
           size="sm"
-          onClick={() => appendType({ type: "", text: "", reference: "" })}
+          onClick={() => appendType({ type: "", text: "", reference: "",id:"" })}
         >
           + Add Type
         </Button>

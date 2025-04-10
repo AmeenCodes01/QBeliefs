@@ -91,7 +91,7 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
         }
       
                  // defaultValue={field.value as string}
-          value={label=="Type" ?field.value.type :field.value.id}
+          value={label=="Type" ?field.value.type : label=="Surah"? field.value: field.value.id}
         >
           <FormControl>
             <SelectTrigger className="">

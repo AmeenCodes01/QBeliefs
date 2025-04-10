@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, UseFieldArrayRemove, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import DataList from "../components/DataList";
 import AnswerItem from "../components/AnswerItem";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getAuthSessionId } from "@convex-dev/auth/server";
 
 interface TypeWithName {
   _creationTime: number;
@@ -55,42 +56,22 @@ interface Question {
 }
 
 type ResponseData = [Answer[], { topic: Topic[] }, Question];
-const objectWithIdAndTitle = z
-  .object({
-    id: z.string().optional(),
-    title: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.id && !data.title) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Either ID or Title must be provided.",
-        path: [], // applies to the whole object
-      });
-    }
-
-    if (data.id && !data.title) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Title is required when ID is present (Edit mode).",
-        path: ["title"],
-      });
-    }
-
-    if (!data.id && data.title && data.title.trim().length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Title cannot be empty.",
-        path: ["title"],
-      });
-    }
-  });
 
 const formSchema = z.object({
-  topic: objectWithIdAndTitle,
-  question: objectWithIdAndTitle,
- 
-  surah: z.string().min(1,{message:"Please select a Surah"}),
+  topic: z
+    .object({
+      id: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .refine((val) => val.title?.trim() || val.id?.trim(), {
+      message: "Please select a topic",
+    }),
+  question: z.object({
+    id: z.string().optional(),
+    title: z.string().optional(),
+  }),
+
+  surah: z.string().min(1, { message: "Please select a Surah" }),
   answers: z
     .array(
       z.object({
@@ -110,37 +91,58 @@ const formSchema = z.object({
 });
 
 export default function ProfileForm() {
-
   const params = useSearchParams();
   const qId = params.get("qId");
   const [hasInitialized, setHasInitialized] = useState(false);
   const onCreate = useMutation(api.admin.create);
   const onSave = useMutation(api.admin.save);
+  const upload = useMutation(api.admin.accept)
+  const delAns = useMutation(api.answers.delAns);
+  const delType = useMutation(api.answers.delAnsType)
+
   const qData = qId
     ? (useQuery(api.admin.getAns, { qId: qId as Id<"Questions"> }) as
         | ResponseData
         | undefined)
     : null;
-  console.log(qData, "qData");
+
+  const origData = qData
+    ? {
+        topic: { id: qData[1]?.topic[0]._id, title: qData[1]?.topic[0].topic },
+        question: { id: qId as string, title: qData[2].qTitle },
+
+        surah: qData[2]?.qSurah._id,
+        answers: qData[0].map((answer) => ({
+          id: answer._id,
+          types: answer.type.map((t) => ({
+            id: t._id,
+            type: t.type_id,
+            typeId: t.type_id,
+            text: t.content,
+            reference: t.reference,
+          })),
+        })),
+      }
+    : null;
 
   const [editInput, setEditInput] = useState(qId !== null ? true : false);
-  const [editMode,setEditMode]=useState(qId !== null ? true : false)
+  const [editMode, setEditMode] = useState(qId !== null ? true : false);
   //editInput set true disables all inputs. I referred to editInput as editInput mode so initially all should be disabled={true}
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topic: {title:"",id:""},
+      topic: { title: "", id: "" },
 
-      question: {id:"",title:""},
-      surah:"",
-      answers: [{ types: [{ text: "", type: "", reference: "" }] }],
+      question: { id: "", title: "" },
+      surah: "",
+      answers: [{ types: [{ text: "", type: "", reference: "", id: "" }] }],
     },
   });
 
   const {
-    formState: { errors, isSubmitting,isDirty, dirtyFields },
+    formState: { errors, isSubmitting, isDirty, dirtyFields },
     setValue,
-    getValues
+    getValues,
   } = form;
 
   const {
@@ -157,69 +159,117 @@ export default function ProfileForm() {
     name: "answers",
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Hello")
-    console.log(values, " values");
-    console.log(isDirty," isDirty ",dirtyFields) 
-    const data = {}
+  async function onSubmit(values: z.infer<typeof formSchema>,  e: React.BaseSyntheticEvent
+  ) {
+    const data: {
+      topic?: { id?: string; title?: string };
+      surah?: string;
+      question?: { id?: string; title?: string };
+      answers?: {
+        types: {
+          type: string;
+          text: string;
+          id?: string;
+          reference?: string;
+        }[];
+        id?: string;
+      }[];
+    } = {};
+    const button = e.nativeEvent?.submitter;
+    const action = button?.value;
+    if (qData && origData && editMode) {
+      if (
+        values.topic.id !== origData.topic.id ||
+        values.topic.title !== origData.topic.title
+      ) {
+        data.topic = values.topic;
+      } else {
+        data.topic = values.topic;
+      }
 
-    //check id
-    if(qData){
-      // if(values.tId == qData[1]?.topic[0]._id){
-      //   //if topic not editInputed, it's id. if editInputed, it's text. but tId is same. 
-      //   const origTopic = topics?.filter(t=>t._id === values.tId )
-      //   if(values.topic !== values.tId && origTopic[0].topic !== values.topic)
-      //   data["topic"] = values.topic;
-      // }
-
+      if (
+        values.question.id !== origData.question.id ||
+        values.question.title !== origData.question.title
+      ) {
+        data.question = values.question;
+      } else {
+        data.question = values.question;
+      }
+      
+      if (values.surah !== origData.surah) {
+        data.surah = values.surah;
+      }
+      
+        const changedAnswers = values.answers.flatMap((ans, i:number) => {
+          
+          const ansId = ans.id
+          const origAns = origData.answers.filter((ans)=> ans.id === ansId) 
+          // Completely new answer (index doesn't exist in original)
+          if (origAns?.length === 0) {
+            console.log("empty arr", ans)
+            return [{ ...ans }]; // full answer including types
+          }
+        
+          // Check for changed or new types
+          const changedTypes = ans.types
+            .map((t, j) => {
+              const origT = origAns[0].types[j];
+              if (
+                !origT ||
+                t.type !== origT.type ||
+                t.text !== origT.text ||
+                t.reference !== origT.reference
+              ) {
+                return t;
+              }
+              return undefined;
+            })
+            .filter((t): t is typeof t => t !== undefined); // type guard
+        
+          if (changedTypes.length > 0) {
+            return [{ id: ans.id, types: changedTypes }];
+          }
+        
+          return [];
+        });
+        
+        
+      
+        
+      
+      if (changedAnswers.length > 0) {
+        data.answers = changedAnswers;
+      }
     }
-    
-    // compare with qData & send changed fields. 
-    // 
-    
-    //   await onSave(values)
-    // const updatedValues = {
-    //   ...values,
-    //   surah: values.surah as Id<"Surahs">,
-    //   //editInput kalia we will add ids of everything.
-    // };
-    // const result =await onCreate(updatedValues);
-    // if(result ==="success"){
-    //   alert("Created succesfully")
-    // }
-
-
-
+    console.log(data, " data")
+    await onCreate(editMode ? data : values);
+    if(action==="upload"){
+      await upload({topicId:values.topic.id as Id<"Topics">, qId:values.question.id as Id<"Questions">,
+        ansId:answers[0].id as Id<"Answers">
+      })
+    }
   }
-
   const topics = useQuery(api.topics.get);
   const questions = useQuery(api.questions.get, { status: "approved" });
   const surahs = useQuery(api.surahs.get);
   const types = useQuery(api.types.get);
 
+  useEffect(() => {
+    const Qexist = questions?.find((q) => q._id == origData?.question.id);
+    if (editMode && !Qexist) {
+      questions?.push({
+        _id: origData?.question.id as Id<"Questions">,
+        title: origData?.question.title as string,
+      });
+    }
+  }, [questions]);
 
   useEffect(() => {
-    if (qData && !hasInitialized) {
-      form.reset({
-        topic:{id: qData[1]?.topic[0]._id, title:qData[1]?.topic[0].topic },
-        question: {id:qId as string, title:qData[2].qTitle},
-        
-        surah: qData[2]?.qSurah._id,
-        answers: qData[0].map((answer) => ({
-          id: answer._id,
-          types: answer.type.map((t) => ({
-            id: t._id,
-            type: t.type_id,
-            typeId: t.type_id,
-            text: t.content,
-            reference: t.reference,
-          })),
-        })),
-      });
-      setHasInitialized(true); // Prevents loop
-
+    if (qData  && origData) {
+      form.reset(origData);
+      console.log(origData)
     }
-  }, [qData, hasInitialized, qId]);
+  }, [qData, qId]);
 
   const findLabel = ({
     type,
@@ -228,89 +278,108 @@ export default function ProfileForm() {
     answerIndex,
     typeIndex,
   }: {
-    type: "Topic" | "Question"|"Type";
+    type: "Topic" | "Question" | "Type";
     id?: string;
     text?: string;
-    answerIndex?:number;
-    typeIndex?:number;
-
+    answerIndex?: number;
+    typeIndex?: number;
   }) => {
-    console.log(type,answerIndex,typeIndex, type==="Type" && answerIndex && typeIndex)
-    if(editMode){
-// need both text & id. 
-// if change option, receive id only. if input, receive text only but we need to keeep prev id.
+    if (editMode) {
+      // need both text & id.
+      // if change option, receive id only. if input, receive text only but we need to keeep prev id.
       if (type === "Topic") {
         const topic = topics?.find((t) => t._id === id);
-        const oldTopicId = getValues("topic.id")
+        const oldTopicId = getValues("topic.id");
 
-        setValue("topic", {id: id=="" ? oldTopicId : id, title: text=="" && topic ? topic.topic : text});
+        setValue("topic", {
+          id: id == "" ? oldTopicId : id,
+          title: text == "" && topic ? topic.topic : text,
+        });
       }
 
       //set only id if CREATE & option. set only name if CREATE & text.
 
-      
-          if (type === "Question") {
-          
-            const ques = questions?.find((q) => q._id == id);
-            const oldQuesId = getValues("question.id")
-            setValue("question", {id:id==""? oldQuesId:id, title: text=="" && ques ? ques.title:text} );
-          }
-
-
-          if (
-            type === "Type" &&
-            typeof answerIndex === "number" &&
-            typeof typeIndex === "number"
-          ){         
-             const oldAnswer = getValues("answers");
-
-          const oldTypes = oldAnswer[answerIndex]?.types[typeIndex]
-          setValue( `answers.${answerIndex}.types.${typeIndex}.type`, id==""?oldTypes.type:id ) 
-          setValue( `answers.${answerIndex}.types.${typeIndex}.text`,text=="" && oldTypes ? oldTypes.text:text) 
-      
-          }
-      
-    }else{
-      if (type === "Topic") {
-        const topic = topics?.find((t) => t._id === id);
-        const oldTopicId = getValues("topic.id")
-
-        setValue("topic", {id , title: text});
-      }
-
       if (type === "Question") {
-          
-       
-        setValue("question", {id, title: text} );
+        const ques = questions?.find((q) => q._id == id);
+        const oldQuesId = getValues("question.id");
+
+        setValue("question", {
+          id: id == "" ? oldQuesId : id,
+          title: text == "" && ques ? ques.title : text,
+        });
       }
 
       if (
         type === "Type" &&
         typeof answerIndex === "number" &&
         typeof typeIndex === "number"
-      ){
-const types = getValues("answers")
-console.log(types," old types")             
-          setValue( `answers.${answerIndex}.types.${typeIndex}.type`,id) 
-          setValue( `answers.${answerIndex}.types.${typeIndex}.text`,text) 
-      
-        }
+      ) {
+        const oldAnswer = getValues("answers");
+
+        const oldTypes = oldAnswer[answerIndex]?.types[typeIndex];
+        setValue(
+          `answers.${answerIndex}.types.${typeIndex}.type`,
+          id == "" ? oldTypes.type : id
+        );
+        setValue(
+          `answers.${answerIndex}.types.${typeIndex}.text`,
+          text == "" && oldTypes ? oldTypes.text : text
+        );
+      }
+    } else {
+      if (type === "Topic") {
+        const topic = topics?.find((t) => t._id === id);
+        const oldTopicId = getValues("topic.id");
+        setValue("topic", { id, title: text });
+      }
+
+      if (type === "Question") {
+        setValue("question", { id, title: text });
+      }
+
+      if (
+        type === "Type" &&
+        typeof answerIndex === "number" &&
+        typeof typeIndex === "number"
+      ) {
+        const types = getValues("answers");
+        setValue(`answers.${answerIndex}.types.${typeIndex}.type`, id);
+        setValue(`answers.${answerIndex}.types.${typeIndex}.text`, text);
+      }
     }
   };
 
-  const resetField = (type: "Topic" | "Question") => {
-   
-  };
+  const resetField = (type: "Topic" | "Question") => {};
 
-  const top = getValues("answers");
-  console.log("topic  ", top)
+
+const deleteAns = async(answerIndex:number)=>{
+  if(editMode){
+    const ansId = getValues(`answers.${answerIndex}.id`)
+    console.log("del answer ",ansId," ansId")
+      ansId && await delAns({ansIds:[ansId as Id<"Answers">]})
+    
+  }
+  removeAnswer(answerIndex)
+
+}
+
+const deleteAnsType=async(answerIndex:number,typeIndex:number, remove:UseFieldArrayRemove)=>{
+  remove(typeIndex)
+  if(editMode){
+
+    const typeId =getValues(`answers.${answerIndex}.types.${typeIndex}.id`)
+    typeId && await delType({id:typeId as Id<"Ans_Types">})
+  }
+
+}
+
   return (
     <div className="w-full font-sans h-full flex flex-col flex-1 text-sm pb-4 justify-center items-center overflow-hidden">
-      <Button onClick={()=>resetField("Topic")}>TOPIC RESET</Button>
+      <Button onClick={() => resetField("Topic")}>TOPIC RESET</Button>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 flex flex-col h-[98%] w-full overflow-auto p-2"
+  onSubmit={(e) => form.handleSubmit((data) => onSubmit(data, e))(e)}
+  className="space-y-4 flex flex-col h-[98%] w-full overflow-auto p-2"
         >
           <FormField
             control={form.control}
@@ -344,7 +413,6 @@ console.log(types," old types")
                 editInput={editInput}
                 field={field}
                 label="Surah"
-
                 datalist={
                   <DataList
                     data={surahs as Doc<"Surahs">[]}
@@ -365,7 +433,6 @@ console.log(types," old types")
               <ItemForm
                 editInput={editInput}
                 field={field}
-
                 label="Question"
                 findLabel={findLabel}
                 datalist={
@@ -387,17 +454,19 @@ console.log(types," old types")
               control={form.control}
               answerIndex={answerIndex}
               ansLength={answersFields.length}
-              onRemoveAnswer={() => removeAnswer(answerIndex)}
+              onRemoveAnswer={() => deleteAns(answerIndex)}
+              onRemoveType = {deleteAnsType}
               types={types}
               findLabel={findLabel}
               editInput={editInput}
+              editMode={editMode}
             />
           ))}
 
           <Button
             type="button"
             onClick={() =>
-              appendAnswer({ types: [{ text: "", type: "", reference: "" }] })
+              appendAnswer({ types: [{ text: "", type: "", reference: "",id:"" }],id:"" })
             }
             className="ml-auto"
           >
@@ -412,14 +481,15 @@ console.log(types," old types")
               <Button type="button" onClick={() => setEditInput(false)}>
                 {editInput ? "editInput" : "editInputing.."}
               </Button>
-              <Button type="submit">Save</Button>
-              <Button type="button">Upload</Button>
+              <Button type="submit"  >Save</Button>
+              <Button type="submit" value="upload">Upload</Button>
             </div>
           ) : (
             <Button
               disabled={isSubmitting}
               className="w-[400px] ml-auto mr-auto text-lg text-white"
               type="submit"
+              name="submit"
             >
               {isSubmitting ? "Submitting" : "Submit"}
             </Button>
