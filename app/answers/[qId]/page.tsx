@@ -47,6 +47,7 @@ async function Answers({ params }: { params: Promise<{ qId: string }> }) {
       <div className="  flex max-h-[80%] mt-4 overflow-hidden">
         {answers?.map((a) => (
           <TabsContent 
+          key={a._id}
           value={a._id} 
           className="px-2 pb-8 sm:px-0 w-full h-full"
         >

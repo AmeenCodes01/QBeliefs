@@ -8,9 +8,9 @@ import { Doc } from '@convex-dev/auth/server';
 import { useQuery } from 'convex/react';
 
  function page() {
-  const waiting = useQuery(api.admin.getWaitingQues) || [];
 
-    console.log(waiting,"uniqueWaiting")
+  const waiting = useQuery(api.admin.getWaitingQues)
+
   return (
     <div className="flex overflow-auto flex-col w-full pt-6 ">
        <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">

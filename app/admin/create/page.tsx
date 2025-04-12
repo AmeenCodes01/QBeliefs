@@ -109,9 +109,9 @@ export default function ProfileForm() {
   const delAll = useMutation(api.questions.del)
 
   const router = useRouter();
-  const qData = qId
-  ? (useQuery(api.admin.getAns, { qId: qId as Id<"Questions"> }) as ResponseData | undefined)
-  : null;
+  const qData = useQuery(api.admin.getAns, 
+    qId ? { qId: qId as Id<"Questions"> } : "skip"
+  ) as ResponseData | undefined;  
 
 const origData = qData
   ? {

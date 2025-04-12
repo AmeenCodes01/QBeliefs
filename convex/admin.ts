@@ -283,9 +283,10 @@ export const getWaitingQues = query({
 
 export const getAns = query({
   args: {
-    qId: v.id("Questions"),
+    qId: v.optional(v.id("Questions")),
   },
   handler: async (ctx, args) => {
+    if(!args.qId)return null
     let answers = await getManyFrom(
       ctx.db,
       "Answers",
