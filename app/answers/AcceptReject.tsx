@@ -36,7 +36,9 @@ function AcceptReject({
   };
   const onReject = async () => {
     //get reason through popup?
-    await reject({ qId, topicId, ansId, typeIds, note});
+
+    //Not working on this right now. Need to figure out how to identify if note for q/ans/type/topic or even if this lvl of complexity is required. 
+    await reject({ qId, topicId, ansId, typeIds, qNote:note});
   };
 
   return (
