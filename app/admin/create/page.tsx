@@ -12,10 +12,13 @@ import ItemForm from "../components/ItemForm";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import DataList from "../components/DataList";
 import AnswerItem from "../components/AnswerItem";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getAuthSessionId } from "@convex-dev/auth/server";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect,  useState } from "react";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog } from "@/components/ui/alert-dialog";
+import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
+import DeleteWarning from "../components/DeleteWarning";
 
 interface TypeWithName {
   _creationTime: number;
@@ -90,44 +93,53 @@ const formSchema = z.object({
     )
     .min(1, { message: "Please provide at least one answer." }),
 });
+type FormData = z.infer<typeof formSchema>;
+
 
 export default function ProfileForm() {
   const params = useSearchParams();
   const qId = params.get("qId");
-  const [hasInitialized, setHasInitialized] = useState(false);
+
+
   const onCreate = useMutation(api.admin.create);
   const onSave = useMutation(api.admin.save);
   const upload = useMutation(api.admin.accept)
-  const delAns = useMutation(api.answers.delAns);
+  const delAns = useMutation(api.answers.del);
   const delType = useMutation(api.answers.delAnsType)
+  const delAll = useMutation(api.questions.del)
 
+  const router = useRouter();
   const qData = qId
-    ? (useQuery(api.admin.getAns, { qId: qId as Id<"Questions"> }) as
-        | ResponseData
-        | undefined)
-    : null;
+  ? (useQuery(api.admin.getAns, { qId: qId as Id<"Questions"> }) as ResponseData | undefined)
+  : null;
 
-  const origData = qData
-    ? {
-        topic: { id: qData[1]?.topic[0]._id, title: qData[1]?.topic[0].topic },
-        question: { id: qId as string, title: qData[2].qTitle },
-
-        surah: qData[2]?.qSurah._id,
-        answers: qData[0].map((answer) => ({
-          id: answer._id,
-          types: answer.type.map((t) => ({
-            id: t._id,
-            type: t.type_id,
-            typeId: t.type_id,
-            text: t.content,
-            reference: t.reference,
-          })),
-        })),
-      }
-    : null;
+const origData = qData
+  ? {
+      topic: {
+        id: qData[1]?.topic?.[0]?._id, // Use optional chaining to avoid errors if topic or qData[1] is undefined
+        title: qData[1]?.topic?.[0]?.topic, // Similarly handle title
+      },
+      question: {
+        id: qId as string,
+        title: qData[2]?.qTitle, // Ensure qData[2] is defined before accessing qTitle
+      },
+      surah: qData[2]?.qSurah?._id, // Safely access qSurah and _id
+      answers: qData[0]?.map((answer) => ({
+        id: answer._id, // Make sure answer is defined
+        types: answer.type?.map((t) => ({
+          id: t._id, // Make sure t is defined
+          type: t.type_id,
+          typeId: t.type_id,
+          text: t.content,
+          reference: t.reference,
+        })) || [], // Default to empty array if answer.type is undefined
+      })) || [], // Default to empty array if qData[0] is undefined
+    }
+  : null;
 
   const [editInput, setEditInput] = useState(qId !== null ? true : false);
   const [editMode, setEditMode] = useState(qId !== null ? true : false);
+  const {toast} = useToast()
   //editInput set true disables all inputs. I referred to editInput as editInput mode so initially all should be disabled={true}
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -136,7 +148,7 @@ export default function ProfileForm() {
 
       question: { id: "", title: "" },
       surah: "",
-      answers: [{ types: [{ text: "", type: "", reference: "", id: "" }] }],
+      answers: [{ types: [{ text: "", type: "", reference: "", id: "" }] ,id:""}],
     },
   });
 
@@ -160,11 +172,14 @@ export default function ProfileForm() {
     name: "answers",
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>,  e: React.BaseSyntheticEvent
-  ) {
+  async function onSubmit(values: FormData, e: React.BaseSyntheticEvent)
+ 
+  {
+    console.log("hello")
+
     const data: {
       topic?: { id?: string; title?: string };
-      surah?: string;
+      surah?: Id<"Surahs">;
       question?: { id?: string; title?: string };
       answers?: {
         types: {
@@ -175,9 +190,15 @@ export default function ProfileForm() {
         }[];
         id?: string;
       }[];
+
     } = {};
-    const button = e.nativeEvent?.submitter;
-    const action = button?.value;
+if(values.surah){
+
+  values.surah = values.surah as Id<"Surahs">
+}
+    const nativeEvent = e.nativeEvent as SubmitEvent;
+    const button = nativeEvent.submitter as HTMLButtonElement;
+        const action = button?.value;
     if (qData && origData && editMode) {
       if (
         values.topic.id !== origData.topic.id ||
@@ -185,7 +206,7 @@ export default function ProfileForm() {
       ) {
         data.topic = values.topic;
       } else {
-        data.topic = values.topic;
+//        data.topic = values.topic;
       }
 
       if (
@@ -194,46 +215,62 @@ export default function ProfileForm() {
       ) {
         data.question = values.question;
       } else {
-        data.question = values.question;
+   //     data.question = values.question;
       }
       
       if (values.surah !== origData.surah) {
-        data.surah = values.surah;
+        data.surah = values.surah as Id<"Surahs">;
       }
       
-        const changedAnswers = values.answers.flatMap((ans, i:number) => {
+      const changedAnswers = values.answers.flatMap((ans:{
+        types: {
+            type: string;
+            text: string;
+            id?: string;
+            reference?: string;
+        }[];
+        id?: string;
+    }
+        
+        
+        
+        , i:number) => {
+        // Check if this answer exists and has required fields
+        if (!ans?.id || !ans.types) return [];
+      
+        const ansId = ans.id;
+        const origAns = origData.answers.filter((o) => o.id === ansId);
+      
+        // Completely new answer (not found in original)
+        if (origAns.length === 0) {
+          return [{ ...ans }];
+        }
+
+
+        const changedTypes   = ans.types
+        .map((t, j:number) => {
+          const origT = origAns[0].types[j];
+          if (
+            !origT ||
+            t.type !== origT.type ||
+            t.text !== origT.text ||
+            t.reference !== origT.reference
+          ) {
+            return t;
+          }
+          return undefined; // ✅ be explicit
+        })
+        .filter((t): t is typeof t => t !== undefined)  as { type: string; text: string; id: string; reference?: string }[];
+
+      
           
-          const ansId = ans.id
-          const origAns = origData.answers.filter((ans)=> ans.id === ansId) 
-          // Completely new answer (index doesn't exist in original)
-          if (origAns?.length === 0) {
-            console.log("empty arr", ans)
-            return [{ ...ans }]; // full answer including types
-          }
-        
-          // Check for changed or new types
-          const changedTypes = ans.types
-            .map((t, j) => {
-              const origT = origAns[0].types[j];
-              if (
-                !origT ||
-                t.type !== origT.type ||
-                t.text !== origT.text ||
-                t.reference !== origT.reference
-              ) {
-                return t;
-              }
-              return undefined;
-            })
-            .filter((t): t is typeof t => t !== undefined); // type guard
-        
-          if (changedTypes.length > 0) {
-            return [{ id: ans.id, types: changedTypes }];
-          }
-        
-          return [];
-        });
-        
+        if (changedTypes.length > 0) {
+          return [{ id: ans.id, types: changedTypes }];
+        }
+      
+        return [];
+      });
+      
         
       
         
@@ -243,28 +280,39 @@ export default function ProfileForm() {
       }
     }
     console.log(data, " data")
-    await onCreate(editMode ? data : values);
-    if(action==="upload"){
-      await upload({topicId:values.topic.id as Id<"Topics">, qId:values.question.id as Id<"Questions">,
-        ansId:answers[0].id as Id<"Answers">
-      })
+    if(Object.keys(data).length===0 && editMode && action!=="upload"){
+      return;
     }
+    
+
+      data.topic = values.topic;
+      data.question = values.question
+      // @ts-ignore
+       const result = await onCreate(editMode ? data : values);
+       if(result==="success"){
+         toast({
+           title:`${editMode?"Saved":"Submitted"} successfully!`
+         })
+       }
+       if(action==="upload"){
+         const result = await upload({topicId:values.topic.id as Id<"Topics">, qId:values.question.id as Id<"Questions">,
+           ansId:answers[0].id as Id<"Answers">
+         })
+         if(result==="success"){
+           toast({
+             title:"Uploaded successfully!"
+           })
+           router.push("/admin/manage")
+         }
+       }
+       
+     
   }
   const topics = useQuery(api.topics.get);
   const questions = useQuery(api.questions.get, { status: "approved" });
   const surahs = useQuery(api.surahs.get);
   const types = useQuery(api.types.get);
-
-  useEffect(() => {
-    const Qexist = questions?.find((q) => q._id == origData?.question.id);
-    if (editMode && !Qexist) {
-      questions?.push({
-        _id: origData?.question.id as Id<"Questions">,
-        title: origData?.question.title as string,
-      });
-    }
-  }, [questions]);
-
+ 
   useEffect(() => {
     if (qData  && origData) {
       form.reset(origData);
@@ -375,7 +423,7 @@ const deleteAnsType=async(answerIndex:number,typeIndex:number, remove:UseFieldAr
 }
 
   return (
-    <div className="w-full font-sans h-full flex flex-col flex-1 text-sm pb-4 justify-center items-center overflow-hidden">
+    <div className="w-full font-sans h-full  flex flex-col flex-1 text-sm pb-4 justify-center items-center overflow-hidden ">
       <Button onClick={() => resetField("Topic")}>TOPIC RESET</Button>
       <Form {...form}>
         <form
@@ -471,7 +519,6 @@ const deleteAnsType=async(answerIndex:number,typeIndex:number, remove:UseFieldAr
               types={types}
               findLabel={findLabel}
               editInput={editInput}
-              editMode={editMode}
             />
           ))}
 
@@ -491,10 +538,18 @@ const deleteAnsType=async(answerIndex:number,typeIndex:number, remove:UseFieldAr
           {qId ? (
             <div className="flex flex-row gap-3 w-full justify-center">
               <Button type="button" onClick={() => setEditInput(false)}>
-                {editInput ? "editInput" : "editInputing.."}
+                {editInput ? "Edit" : "Editing.."}
               </Button>
               <Button type="submit"  >Save</Button>
               <Button type="submit" value="upload">Upload</Button>
+              <AlertDialog>
+                <AlertDialogTrigger >
+
+              <Button type="button" variant={"destructive"} 
+              >Delete All</Button>
+              </AlertDialogTrigger>
+<DeleteWarning qId={origData && origData.question.id}/>
+              </AlertDialog>
             </div>
           ) : (
             <Button
@@ -511,3 +566,6 @@ const deleteAnsType=async(answerIndex:number,typeIndex:number, remove:UseFieldAr
     </div>
   );
 }
+
+//alert dialog for delete All/ delete type
+// toast for submitting/edit/upload/save

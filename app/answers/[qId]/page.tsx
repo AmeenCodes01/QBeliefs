@@ -35,7 +35,7 @@ async function Answers({ params }: { params: Promise<{ qId: string }> }) {
         {answers?.map((a, i) => (
           <TabsTrigger
             key={a._id}
-            className="data-[state=active]:bg-primaryLight text-lg w-full"
+            className="data-[state=active]:bg-primaryLight data-[state=active]:text-primary  text-lg w-full"
             value={a._id}
           >
             Ans {i + 1}

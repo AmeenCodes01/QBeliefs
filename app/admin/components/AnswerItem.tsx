@@ -24,7 +24,6 @@ const AnswerItem = ({
     ansLength,
     editInput,
     findLabel,
-    editMode,
     onRemoveType
   }: {
     control: any;
@@ -33,14 +32,13 @@ const AnswerItem = ({
     ansLength: number;
     types: Doc<"Types">[] | undefined,
     editInput:boolean,
-    findLabel?:( args:{
-      type: "Topic" | "Question"|"Type";
+    findLabel: ({ type, id, text, answerIndex, typeIndex, }: {
+      type: "Topic" | "Question" | "Type";
       id?: string;
       text?: string;
-      answerIndex?:number;
-      typeIndex?:number;
-      editMode:boolean;
-    })=> void;
+      answerIndex?: number;
+      typeIndex?: number;
+  }) => void
    onRemoveType: (answerIndex: number, typeIndex: number, remove: UseFieldArrayRemove) => Promise<void>;
   }) => {
 
@@ -58,7 +56,7 @@ const AnswerItem = ({
     }
 
     return (
-      <div className="space-y-4 border p-4 rounded-md mb-4">
+      <div className="space-y-4 border p-4 rounded-md mb-4 ">
         <div className="flex justify-between items-center">
           <h3 className="font-semibold">Answer {answerIndex + 1}</h3>
           <Button

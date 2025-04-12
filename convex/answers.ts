@@ -41,18 +41,11 @@ export const get = query({
   },
 });
 
-export const delAns = mutation({
+export const del = mutation({
   args: { ansIds: v.array(v.id("Answers")),   
      },
   handler: async (ctx, { ansIds, }) => {
-await asyncMap(ansIds, async(id)=>{
-  const allAnsTypes = await getManyFrom(ctx.db,"Ans_Types", "by_aId",id,"a_id")
-  const Ids = allAnsTypes?.map(a=>a._id).filter(Boolean)
-  if(Ids){
-    await asyncMap(Ids,async(i)=> await ctx.db.delete(i))
-  }
-await ctx.db.delete(id)
-})
+    await delAns(ctx,ansIds)
 
     // for each ans, remove Ans_Types.
     
@@ -118,4 +111,20 @@ export async function AnsTypes(ctx:QueryCtx, id:(Id<"Answers">)){
        return typesWithName ;
    
 }
+
+export async function delAns(ctx:MutationCtx,ansIds:Id<"Answers">[]){
+await asyncMap(ansIds, async(id)=>{
+  const allAnsTypes = await getManyFrom(ctx.db,"Ans_Types", "by_aId",id,"a_id")
+  const Ids = allAnsTypes?.map(a=>a._id).filter(Boolean)
+  if(Ids){
+    await asyncMap(Ids,async(i)=> await ctx.db.delete(i))
+  }
+await ctx.db.delete(id)
+})
+
+    // for each ans, remove Ans_Types.
+  
+  }
+
+
 

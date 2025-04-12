@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
 import {
     getAll,
@@ -8,7 +8,8 @@ import {
     getAllOrThrow,
   } from "convex-helpers/server/relationships";
 import { asyncMap } from "convex-helpers";
-import { getAns } from "./answers";
+import { delAns, getAns } from "./answers";
+import { Id } from "./_generated/dataModel";
 
 
 export const get = query({
@@ -68,3 +69,37 @@ export const getByTopic = query({
     // const answers = await getManyFrom(db,"Answers","by_qId",)
   },
 });
+
+export const del = mutation({
+  args: {id:v.id("Questions")},
+  handler: async (ctx,{id}) => {
+    await delQues(ctx,id)
+    
+    // const answers = await getManyFrom(db,"Answers","by_qId",)
+  },
+})
+
+export async function delQues(ctx:MutationCtx, id:(Id<"Questions">)){
+        //remove frm topic_ques
+        const topicQues = await getOneFrom(ctx.db, "Topic_Ques","q_id",id )
+        topicQues && await ctx.db.delete(topicQues?._id)
+
+    
+//del all answers
+      const allAns = await getManyFrom(ctx.db,"Answers","by_qId",id,"q_id");
+      const ansIds = allAns?.map(a=>a._id).filter(Boolean)
+  
+    ansIds &&  await delAns(ctx,ansIds)
+
+    //del surah
+
+    const quesSurah = await getOneFrom(ctx.db,"Surah_Ques","q_id",id as Id<"Questions">)
+    quesSurah && await ctx.db.delete(quesSurah._id)
+
+
+  //del question
+    await ctx.db.delete(id)
+   
+}
+
+

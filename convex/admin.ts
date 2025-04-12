@@ -135,6 +135,7 @@ export const create = mutation({
       const topicQues = await getOneFrom(ctx.db, "Topic_Ques","q_id",question.id as Id<"Questions">)
       topicQues && await ctx.db.patch(topicQues?._id,{t_id:topic.id as Id<"Topics">})
 
+
       //get from old question. 
 //       const answers = await getManyFrom(ctx.db,"Answers","by_qId",quesId as Id<"Questions">,"q_id");
 //       const ansIds = answers?.map(ans=> ans._id).filter(Boolean)
@@ -162,15 +163,30 @@ export const create = mutation({
         t_id: topicId as Id<"Topics">,
         q_id: quesId as Id<"Questions">,
       });
+    
+    
+      if(surah){
+        console.log(surah,"surah")
+        const surahQues = await ctx.db.insert("Surah_Ques", {
+          s_id: surah,
+          q_id: quesId as Id<"Questions">,
+        });
+      }
+    
     }
 
-    //const quesId = await checkAndCreate(ctx, question, "Questions");
-    if(surah){
-      const surahQues = await ctx.db.insert("Surah_Ques", {
-        s_id: surah,
-        q_id: quesId as Id<"Questions">,
+
+    
+    const quesSurah = await getOneFrom(ctx.db,"Surah_Ques","q_id",quesId as Id<"Questions">)
+    if(surah && surah!=="" && quesSurah){
+console.log("change surah")
+      const surahQues = await ctx.db.patch(quesSurah?._id, {
+        s_id: surah as Id<"Surahs">,
       });
     }
+
+
+    //const quesId = await checkAndCreate(ctx, question, "Questions");
 
 
 if(answers){
@@ -178,6 +194,7 @@ if(answers){
   await asyncMap(answers, async (ans) => {
     //types:[{ }]
     let ansId = ans.id
+    console.log(ansId," ansId")
     if(ans.id ===""){
 
        ansId = await ctx.db.insert("Answers", {
@@ -223,62 +240,6 @@ console.log(type, " type")
   },
 });
 
-// export const create = mutation({
-//   args: {
-//     topic: v.union(v.string(), v.id("Topics")),
-//     question: v.union(v.string(), v.id("Questions")),
-//     surah: v.id("Surahs"),
-//     answers: v.array(
-//       v.object({
-//         types: v.array(
-//           v.object({
-//             type: v.string(),
-//             text: v.string(),
-//             reference: v.optional(v.string()),
-//           }),
-//         ),
-//       }),
-//     ),
-//   },
-//   handler: async (ctx, { topic, question, surah, answers }) => {
-//     console.log("helo");
-//     const topicId = await checkAndCreate(ctx, topic, "Topics");
-//     console.log(topicId, "topicId");
-//     const quesId = await checkAndCreate(ctx, question, "Questions");
-
-//     const surahQues = await ctx.db.insert("Surah_Ques", {
-//       s_id: surah,
-//       q_id: quesId as Id<"Questions">,
-//     });
-//     const topicQues = await ctx.db.insert("Topic_Ques", {
-//       t_id: topicId as Id<"Topics">,
-//       q_id: quesId as Id<"Questions">,
-//     });
-
-//     await asyncMap(answers, async (ans) => {
-//       //types:[{ }]
-//       const ansId = await ctx.db.insert("Answers", {
-//         q_id: quesId as Id<"Questions">,
-//         status: "waiting",
-//       });
-
-//       await asyncMap(ans.types, async (part) => {
-//         const typeId = await checkAndCreate(ctx, part.type, "Types");
-
-//         const ansType = await ctx.db.insert("Ans_Types", {
-//           a_id: ansId as Id<"Answers">,
-//           type_id: typeId as Id<"Types">,
-//           content: part.text,
-//           reference: part?.reference ?? "",
-//         });
-//       });
-//     });
-
-//     return "success";
-
-//     // const answers = await getManyFrom(db,"Answers","by_qId",)
-//   },
-// });
 
 export const getWaitingQues = query({
   args: {},
@@ -410,6 +371,7 @@ if(typeIds){
   
 
 }
+return "success"
 }
 });
 
