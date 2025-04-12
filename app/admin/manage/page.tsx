@@ -7,7 +7,7 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Doc } from '@convex-dev/auth/server';
 import { useQuery } from 'convex/react';
 
- function page() {
+ function Manage() {
 
   const waiting = useQuery(api.admin.getWaitingQues)
 
@@ -34,4 +34,4 @@ import { useQuery } from 'convex/react';
   )
 }
 
-export default page
+export default Manage
