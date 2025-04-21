@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ItemForm from "../components/ItemForm";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -33,7 +33,7 @@ const AnswerItem = ({
     types: Doc<"Types">[] | undefined,
     editInput:boolean,
     findLabel: ({ type, id, text, answerIndex, typeIndex, }: {
-      type: "Topic" | "Question" | "Type";
+      type: "Topic" | "Question" | "Type"|"Surah";
       id?: string;
       text?: string;
       answerIndex?: number;
@@ -41,6 +41,8 @@ const AnswerItem = ({
   }) => void
    onRemoveType: (answerIndex: number, typeIndex: number, remove: UseFieldArrayRemove) => Promise<void>;
   }) => {
+
+    const surahs = useQuery(api.surahs.get);
 
     const {
       fields: typesFields,
@@ -51,10 +53,9 @@ const AnswerItem = ({
       name: `answers.${answerIndex}.types`,
     });
   
-    const onChangeType = (typeIndex:number,id:string,text:string)=>{
-     findLabel && findLabel({type:"Type" as "Type"|"Topic"|"Question",id,text, typeIndex,answerIndex})
-    }
 
+
+   
     return (
       <div className="space-y-4 border p-4 rounded-md mb-4 ">
         <div className="flex justify-between items-center">
@@ -69,7 +70,29 @@ const AnswerItem = ({
             Remove Answer
           </Button>
         </div>
-  
+        <FormField
+            control={control}
+            name={`answers.${answerIndex}.s_id`}
+            render={({ field }) => (
+              <ItemForm
+                editInput={editInput}
+                field={field}
+                label="Surah"
+                findLabel={findLabel}
+answerIndex={answerIndex}
+                datalist={
+                  <DataList
+                    data={surahs as Doc<"Surahs">[]}
+                    mapFn={(s) => ({
+                      value: s._id,
+                      label: s.name,
+                    })}
+                  />
+                }
+                showbtn={false}
+              />
+            )}
+          />
         {typesFields.map((typeField, typeIndex) => (
           <div key={typeField.id} className="space-y-2 border-2 h-fit p-2 rounded">
             <FormField

@@ -12,75 +12,6 @@ import { Id } from "./_generated/dataModel";
 import { AnsTypes } from "./answers";
 
 
-export const save = mutation({
-  args:{
-    topic: v.union(v.string(), v.id("Topics")),
-    tId: v.id("Topics"),
-    question: v.union(v.string(), v.id("Questions")),
-    qId: v.id("Questions"),
-    surah: v.id("Surahs"),
-    answers: v.array(
-      v.object({
-        id: v.id("Answers"),
-        types: v.array(
-          v.object({
-            id: v.id("Ans_Types"),
-            type: v.id("Types"),
-            text: v.string(),
-            reference: v.optional(v.string()),
-          }),
-        ),
-      }),
-    ),},
-
-  handler: async (ctx, { topic, question, answers, qId, surah, tId }) => {
-    
-    const Topic =await  ctx.db.get(tId);
-    if(Topic?.topic !== topic){
-      await ctx.db.patch(tId,{topic:topic})
-    }
-    const ques = await ctx.db.get(qId);
-    if(ques?.title !== question){
-      await ctx.db.patch(qId,{title:question})
-    }
-
-    const surahQues = ques ? 
-  //  await getOneFrom(ctx.db,"Surah_Ques","q_id",ques?._id) 
-  await ctx.db.query("Surah_Ques").withIndex("q_id",q=>q.eq("q_id",ques._id)).first()
-    : null
-
-    if(surahQues && (surahQues?.s_id !== surah)){
-      //if surah changed, we need to fix the relation in Ques_Surah.  
-      await ctx.db.patch(surahQues._id,{s_id: surah})
-
-    }
-
-
-    //check if type changed, (then change typeid)
-    //check if text changed
-    //check if cont
-    const AnsWithTypes = await asyncMap(
-      answers.filter(Boolean),
-      async (ans) => {
-        const typesWithName = await AnsTypes(ctx, ans.id);
-
-        return { ...ans, type: typesWithName };
-      },
-    );
-    console.log(AnsWithTypes,"ansWithTtpes")
-
-    //we check types of answers now & change as needed. answer Id (_id) remains same. type
-    // await asyncMap(answers, async (ans, a)=>{
-    //   await asyncMap(ans.types, async (type,t)=>{
-    //     //type id
-    //    if(type.type !== AnsWithTypes[a].type[t].type_id){
-    //     //patch type id in Ans_Types. 
-    //       await ctx.db.patch(type.id,{type_id: type.type})
-    //    }
-    //   }) 
-    // })
-  }
-})
 
 
 
@@ -88,10 +19,10 @@ export const create = mutation({
   args: {
     topic: v.object({id:v.union(v.string(), v.id("Topics")), title:v.optional(v.string())}),
     question: v.object({id:v.union(v.string(), v.id("Questions")), title:v.optional(v.string())}),
-    surah: v.optional(v.id("Surahs")),
     answers: v.optional(v.array(
       v.object({
         id:v.optional(  v.union(v.string(),v.id("Answers")) ),
+        s_id:v.optional(v.id("Surahs")),
         types: v.optional(v.array(
           v.object({
             type: v.string(),
@@ -105,7 +36,7 @@ export const create = mutation({
   
   },
 
-  handler: async (ctx, { topic, question, surah, answers }) => {
+  handler: async (ctx, { topic, question, answers }) => {
     let topicId = topic.id
     let quesId = question.id
     const status = "waiting"
@@ -165,25 +96,13 @@ export const create = mutation({
       });
     
     
-      if(surah){
-        console.log(surah,"surah")
-        const surahQues = await ctx.db.insert("Surah_Ques", {
-          s_id: surah,
-          q_id: quesId as Id<"Questions">,
-        });
-      }
+    
     
     }
 
 
     
-    const quesSurah = await getOneFrom(ctx.db,"Surah_Ques","q_id",quesId as Id<"Questions">)
-    if(surah && surah!=="" && quesSurah){
-console.log("change surah")
-      const surahQues = await ctx.db.patch(quesSurah?._id, {
-        s_id: surah as Id<"Surahs">,
-      });
-    }
+  
 
 
     //const quesId = await checkAndCreate(ctx, question, "Questions");
@@ -196,11 +115,15 @@ if(answers){
     let ansId = ans.id
     console.log(ansId," ansId")
     if(ans.id ===""){
-
+//create
        ansId = await ctx.db.insert("Answers", {
+        s_id: ans.s_id as Id<"Surahs">,
         q_id: quesId as Id<"Questions">,
         status,
       });
+
+    }else if(ans.s_id){
+      await ctx.db.patch(ansId as Id<"Answers">,{s_id:ans.s_id})
 
     }
 
@@ -285,6 +208,7 @@ export const getAns = query({
   args: {
     qId: v.optional(v.id("Questions")),
   },
+
   handler: async (ctx, args) => {
     if(!args.qId)return null
     let answers = await getManyFrom(
@@ -294,6 +218,8 @@ export const getAns = query({
       args.qId,
       "q_id",
     );
+
+    console.log(answers, " ANSWERS")
     answers = answers.filter((a) => a.status == "waiting");
     const topic = await getManyVia(
       ctx.db,
@@ -303,13 +229,8 @@ export const getAns = query({
       args.qId,
     );
     const ques = await ctx.db.get(args.qId);
-    const surahQues = ques ? 
-  //  await getOneFrom(ctx.db,"Surah_Ques","q_id",ques?._id) 
-  await ctx.db.query("Surah_Ques").withIndex("q_id",q=>q.eq("q_id",ques._id)).first()
-    : null
-    const qSurah = surahQues ?   await ctx.db.get(surahQues.s_id)
-:null
-    console.log(qSurah,"qSurah")
+    
+    
 
     const AnsWithTypes = await asyncMap(
       answers.filter(Boolean),
@@ -323,7 +244,7 @@ export const getAns = query({
     const AnsTopicsQues = [
       [...AnsWithTypes],
       { topic },
-      { qTitle: ques?.title, qStatus:ques?.status, qSurah },
+      { qTitle: ques?.title, qStatus:ques?.status },
     ];
 
     return AnsTopicsQues;

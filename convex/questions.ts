@@ -43,6 +43,7 @@ export const getById = query({
   },
 });
 
+
 export const getByTopic = query({
   args: {topicId:v.id("Topics")},
   handler: async (ctx,args) => {
@@ -56,8 +57,9 @@ export const getByTopic = query({
 
       const quesAns =await asyncMap(questions.filter(Boolean), async(ques)=>{
          const ans = await getAns(ctx, ques._id,"approved")
-         const surahQues = await getManyFrom(ctx.db,"Surah_Ques","q_id", ques._id)
-         const surahIds = surahQues.map(u=>u.s_id)
+//get all ans, each ans will have surahId
+
+         const surahIds = ans.map(a=>a.s_id)
          return {...ques, ans, surahIds}
       })
      
@@ -93,9 +95,7 @@ export async function delQues(ctx:MutationCtx, id:(Id<"Questions">)){
 
     //del surah
 
-    const quesSurah = await getOneFrom(ctx.db,"Surah_Ques","q_id",id as Id<"Questions">)
-    quesSurah && await ctx.db.delete(quesSurah._id)
-
+   
 
   //del question
     await ctx.db.delete(id)

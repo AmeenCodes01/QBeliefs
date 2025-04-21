@@ -22,6 +22,7 @@ export default defineSchema({
 
   Answers: defineTable({
     q_id: v.id("Questions"),
+    s_id:v.id("Surahs"),
     status: v.union(
       v.literal("approved"),
       v.literal("rejected"),
@@ -76,10 +77,7 @@ export default defineSchema({
     name: v.string(),
     surah: v.string(),
   }),
-  Surah_Ques: defineTable({
-    s_id: v.id("Surahs"),
-    q_id: v.id("Questions"),
-  }).index("q_id", ["q_id"]),
+
 
   ...authTables,
 });

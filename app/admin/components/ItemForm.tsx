@@ -34,7 +34,7 @@ interface FormSelectProps<T extends FieldValues, K extends Path<T>> {
   typeIndex?:number;
 
   findLabel?:( args:{
-    type: "Topic" | "Question"| "Type";
+    type: "Topic" | "Question" | "Type"|"Surah";
     id?: string;
     text?: string;
     answerIndex?:number;
@@ -61,7 +61,7 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
 }: FormSelectProps<T, K>) {
   const [show, setShow] = useState(showInput == undefined ? false : true);  
 
-
+label=="Surah" && console.log(field.value," surah")
   return (
     
     <FormItem className={` text-md   h-fit flex flex-col sm:text-xl ${ label.includes("Answer")?"max-h-[300px]":"h-[200px]"} w-full   `}>
@@ -70,18 +70,16 @@ function ItemForm<T extends FieldValues, K extends Path<T>>({
         <Select
         disabled={editInput}
         onValueChange={(val)=>{
-          if(label=="Surah"){
-            field.onChange(val)
-          }else{
+          
 
-            findLabel && findLabel({id:val,type:label as "Topic"|"Question"|"Type",answerIndex,typeIndex})
-          }
+            findLabel && findLabel({id:val,type:label as "Topic"|"Question"|"Type"|"Surah",answerIndex,typeIndex})
+          
         
         }
         }
       
                  // defaultValue={field.value as string}
-          value={label=="Type" ?field.value.type : label=="Surah"? field.value: field.value.id}
+          value={label=="Type" ?field.value.type :label=="Surah"?field.value: field.value.id}
         >
           <FormControl>
             <SelectTrigger className="">
