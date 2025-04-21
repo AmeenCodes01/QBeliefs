@@ -37,6 +37,8 @@ export const create = mutation({
   },
 
   handler: async (ctx, { topic, question, answers }) => {
+
+    console.log(question, "question")
     let topicId = topic.id
     let quesId = question.id
     const status = "waiting"
