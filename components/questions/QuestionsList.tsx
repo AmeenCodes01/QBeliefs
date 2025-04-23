@@ -55,7 +55,7 @@ console.log(qArr,"qArr")
       </div>
 
       {/* rows messed up with header, cols does not.  */}
-      <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
+      <div className="grid md:grid-cols-1 border-2  md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
         {filteredQues?.length !== 0
           ? filteredQues?.map((q, i: number) => (
             
