@@ -74,7 +74,7 @@
     direction: ltr; /* Ensures content inside remains normal */
   }
   .scrollbar-left::-webkit-scrollbar {
-    width: 1px; /* Adjust thickness */
+    width: 0.5px; /* Adjust thickness */
     background-color: white ;
   }
   
@@ -93,6 +93,37 @@
   
   .scrollbar-left {
     scrollbar-color: #FFB536 #ffff; /* Firefox */
+    scrollbar-width: thin;
+  }
+  .scrollbar-left-thin {
+    direction: rtl;
+    text-align: left;
+  }
+  
+  .scrollbar-left-thin * {
+    direction: ltr;
+  }
+  
+  .scrollbar-left-thin::-webkit-scrollbar {
+    width: 0.3px; /* Even thinner */
+    background-color: white;
+  }
+  
+  .scrollbar-left-thin::-webkit-scrollbar-thumb {
+    background: #159E86; /* Your primary color */
+    border-radius: 10px;
+  }
+  
+  .scrollbar-left-thin::-webkit-scrollbar-thumb:hover {
+    background: #117e6c; /* Slightly darker shade on hover */
+  }
+  
+  .scrollbar-left-thin::-webkit-scrollbar-track {
+    background: #edf2f7;
+  }
+  
+  .scrollbar-left-thin {
+    scrollbar-color: #159E86 #ffffff; /* Firefox scrollbar */
     scrollbar-width: thin;
   }
   

@@ -37,7 +37,7 @@ function TopicTabsSidebar({topics}:{topics:Doc<"Topics">[]}) {
     
       <TabsList className="w-full sticky
       
-      scrollbar-left
+      scrollbar-left-thin
       
       top-0 z-10 bg-primary text-white md:rounded-sm md:flex overflow-x-auto h-fit md:gap-5 gap-2 grid grid-cols-2 rounded-md  md:flex-row-reverse justify-start text-xl">
         {topics.map((topic) => (

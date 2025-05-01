@@ -152,7 +152,7 @@ function QuestionCard({
 
                 {/* Dynamic Height Content */}
                 <Link href={`answers/${id}#${selectedType}`}>
-                  <div className="bg-hover w-full p-4 rounded-sm text-grayMid text-right text-lg">
+                  <div className="bg-hover w-full p-4 overflow-auto max-h-[200px] scrollbar-left-thin rounded-sm text-grayMid text-right text-lg">
                     <span className="leading-8 block">
                       {content && content[0]?.content}
                     </span>

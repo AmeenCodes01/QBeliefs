@@ -20,26 +20,25 @@ function QuestionsList({
   const surahId = useStore(state=>state.surahId)
   const qArr = useQuery(api.questions.getByTopic,{topicId})
 
-  const filteredQues =  
-  useQuery(api.questions.getBySearch,{query:search!=="" ?search:"skip"})
-  // qArr?.filter((ques) => {
-  //   let surahMatch = true;
-  //   let searchMatch = true;
+  const searchQues =  useQuery(api.questions.getBySearch,{query:search!=="" ?search:"skip"})
+  const surahFilteredQues = qArr?.filter((ques) => {
+    let surahMatch = true;
+    let searchMatch = true;
   
-  //   if (surahId) {
-  //     surahMatch = ques.surahIds.includes(surahId);
-  //   }
+    if (surahId) {
+      surahMatch = ques.surahIds.includes(surahId);
+    }
   
-  //   if (search !== "") {
-  //     searchMatch = ques.title.toLowerCase().includes(search.toLowerCase());
-  //   }
+    if (search !== "") {
+      searchMatch = ques.title.toLowerCase().includes(search.toLowerCase());
+    }
   
-  //   return surahMatch && searchMatch;
-  // })
+    return surahMatch && searchMatch;
+  })
   
   
 
-const displayQues = search ? filteredQues : qArr
+const displayQues = search !=="" ? searchQues : surahFilteredQues
   return (
     <div className="flex overflow-auto flex-col w-full ">
     

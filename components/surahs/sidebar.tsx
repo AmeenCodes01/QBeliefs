@@ -23,10 +23,13 @@ function Sidebar() {
 
   return (
     <>
-    <div className="hidden h-full w-full gap-1 md:block flex-col overflow-y-auto overflow-x-hidden scrollbar-left flex-1 hover:cursor-pointer">
       {surahId && (
-       <ClearFilter />
+        <div className="sticky top-0 flex flex-row gap-3">
+<span className="text-center my-auto">Surah filter :</span>
+          <ClearFilter name={selectedSurah?.name}/>
+        </div>
       )}
+    <div className="hidden h-full w-full gap-1 md:block flex-col overflow-y-auto overflow-x-hidden scrollbar-left flex-1 hover:cursor-pointer">
       {surahs?.map((su) => (
         <div
           className={`flex-row-reverse gap-3 p-3 active:border-[1px] rounded-md flex font-normal text-2xl ${surahId == su._id ? " border-[1px] bg-primaryLight border-primary" : ""}`}
