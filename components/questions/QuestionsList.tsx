@@ -12,6 +12,7 @@ function QuestionsList({
 }: {
   topicId: Id<"Topics"> }
 ) {
+
   const [search, setSearch] = useState("");
   const [showIndex, setShowIndex]=useState<null|number>(0)
   console.log(showIndex,"showIndes")
@@ -19,22 +20,26 @@ function QuestionsList({
   const surahId = useStore(state=>state.surahId)
   const qArr = useQuery(api.questions.getByTopic,{topicId})
 
-  const filteredQues = qArr?.filter((ques) => {
-    let surahMatch = true;
-    let searchMatch = true;
+  const filteredQues =  
+  useQuery(api.questions.getBySearch,{query:search!=="" ?search:"skip"})
+  // qArr?.filter((ques) => {
+  //   let surahMatch = true;
+  //   let searchMatch = true;
   
-    if (surahId) {
-      surahMatch = ques.surahIds.includes(surahId);
-    }
+  //   if (surahId) {
+  //     surahMatch = ques.surahIds.includes(surahId);
+  //   }
   
-    if (search !== "") {
-      searchMatch = ques.title.toLowerCase().includes(search.toLowerCase());
-    }
+  //   if (search !== "") {
+  //     searchMatch = ques.title.toLowerCase().includes(search.toLowerCase());
+  //   }
   
-    return surahMatch && searchMatch;
-  });
+  //   return surahMatch && searchMatch;
+  // })
+  
+  
 
-console.log(qArr,"qArr")
+const displayQues = search ? filteredQues : qArr
   return (
     <div className="flex overflow-auto flex-col w-full ">
       <div className="flex gap-4 mb-10">
@@ -56,8 +61,8 @@ console.log(qArr,"qArr")
 
       {/* rows messed up with header, cols does not.  */}
       <div className="grid md:grid-cols-1 border-2  md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
-        {filteredQues?.length !== 0
-          ? filteredQues?.map((q, i: number) => (
+        {displayQues?.length !== 0
+          ? displayQues?.map((q, i: number) => (
             
             <QuestionCard
                 key={q._creationTime}

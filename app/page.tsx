@@ -7,6 +7,9 @@ async function page() {
   const topics = await fetchQuery(api.topics.get);
   return (
     <div className="w-full  h-full flex mx-auto min-h-0 md:p-4 p-2 ">
+      {/* Search bar */}
+
+      {/* Topic Tabs + Question */}
    <TopicTabsSidebar topics={topics}/>
   </div>
   

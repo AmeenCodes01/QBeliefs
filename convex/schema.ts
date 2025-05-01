@@ -18,7 +18,9 @@ export default defineSchema({
     ),
     uploaderId: v.optional(v.id("users")),
     rejectNote: v.optional(v.string())
-  }).index("by_status", ["status"]),
+  }).index("by_status", ["status"]).searchIndex("question_title",{
+searchField:"title"
+  }),
 
   Answers: defineTable({
     q_id: v.id("Questions"),

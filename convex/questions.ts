@@ -44,6 +44,35 @@ export const getById = query({
 });
 
 
+
+export const getBySearch = query({
+  args: {query:v.optional(v.string())},
+
+  handler: async (ctx,{query}) => {
+    if(!query)return null
+  // const t_q = await getManyFrom(ctx.db,"Topic_Ques","by_tId", args.topicId,"t_id" )
+
+      let questions = await ctx.db.query("Questions").withSearchIndex("question_title",q=>q.search("title",query)).collect();
+      questions = questions.filter(q => q.status === "approved")
+
+
+      const quesAns =await asyncMap(questions.filter(Boolean), async(ques)=>{
+         const ans = await getAns(ctx, ques._id,"approved")
+//get all ans, each ans will have surahId
+
+         const surahIds = ans.map(a=>a.s_id)
+         return {...ques, ans, surahIds}
+      })
+     
+  
+    // const questions = await ctx.db.
+
+    return quesAns
+    
+    // const answers = await getManyFrom(db,"Answers","by_qId",)
+  },
+});
+
 export const getByTopic = query({
   args: {topicId:v.id("Topics")},
   handler: async (ctx,args) => {

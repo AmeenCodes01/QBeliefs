@@ -34,7 +34,7 @@ function TopicTabsSidebar({topics}:{topics:Doc<"Topics">[]}) {
               key={topic._id}
             >
               <QuestionsList topicId={topic._id} />
-            </TabsContent>
+            </TabsContent>   
           ))}
         </div>
   
