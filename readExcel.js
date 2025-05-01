@@ -13,7 +13,7 @@ async function main() {
 const   types = await client.query(api.types.get);
 const surahs = await client.query(api.surahs.get)
    const topics = await client.query(api.topics.get)
-   const workbook = XLSX.readFile('./Sample Qs- Format for Script to Import Qs Ans.xlsx');
+   const workbook = XLSX.readFile('Aqeeda Qs Batch2 for Upload on 27-Apr-25.xlsx');
    
    const sheetNames = workbook.SheetNames;
    //console.log("Sheet Names:", sheetNames);
@@ -31,15 +31,16 @@ jsonData.forEach((row) => {
     i += 1;
     currentTitle = row.Question;
 
-    const topicId = topics.filter(t=> t.topic === row.Categories.trim())[0]._id
+    const topicId = topics.filter(t=> t.topic === row.Categories.trim())[0]?._id
     ques[i] = {
       topic: {
-        title: "",
-        id: topicId, // Will fill later
+        title: topicId? "": row.Categories,
+        id: topicId ? topicId:"", // Will fill later
       },
       question: {
         title: row.Question || "",
-        id: "" // Will fill later
+        id: "", // Will fill later
+        no: row["Q. No."]
       },
       answers: []
     };
@@ -74,15 +75,17 @@ jsonData.forEach((row) => {
     id: "", // Will fill later
     type: typeId,
     text: row["Answer Description"] || "",
-    reference: row["Reference"] || ""
+    reference:""
+   // reference: row["Reference"] || ""
   });
 });
 
 ques.forEach(async(ques,i)=>{
-  console.log(ques.question, " ques")
+  // console.log(ques.question, " ques")
+  // console.log(ques.answers, " ans")
   const result= await client.mutation(api.admin.create,{...ques});
   
-  //console.log(result)
+  console.log(result)
 })
 
 

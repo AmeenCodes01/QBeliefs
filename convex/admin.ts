@@ -18,7 +18,10 @@ import { AnsTypes } from "./answers";
 export const create = mutation({
   args: {
     topic: v.object({id:v.union(v.string(), v.id("Topics")), title:v.optional(v.string())}),
-    question: v.object({id:v.union(v.string(), v.id("Questions")), title:v.optional(v.string())}),
+    question: v.object({id:v.union(v.string(), v.id("Questions")),
+       title:v.optional(v.string()), 
+        no: v.optional(v.string())
+    }),
     answers: v.optional(v.array(
       v.object({
         id:v.optional(  v.union(v.string(),v.id("Answers")) ),
@@ -38,10 +41,11 @@ export const create = mutation({
 
   handler: async (ctx, { topic, question, answers }) => {
 
-    console.log(question, "question")
+    console.log(topic, "topic")
+    
     let topicId = topic.id
     let quesId = question.id
-    const status = "waiting"
+    const status = "approved"
    //if topic or question change, we need to patch. 
     
     if(topic?.id !=="" && topic?.title!==""){
@@ -54,6 +58,7 @@ export const create = mutation({
     }else if(topic.id=="" && topic.title!==""){
       //create new
        topicId = await ctx.db.insert("Topics", { topic: topic.title as string, status });
+       console.log("created topic", topicId)
        
        
  
@@ -83,10 +88,10 @@ export const create = mutation({
 
     }else if(question.id=="" && question.title!==""){
       //create
-      const lastQues = await ctx.db.query("Questions").order("desc").take(1);
+    //  const lastQues = await ctx.db.query("Questions").order("desc").take(1);
        quesId = await ctx.db.insert("Questions", {
         title: question.title as string,
-        q_no: lastQues.length > 0 ? (lastQues[0]?.q_no ?? 0) + 1 : 1,
+        q_no: question?.no,
         status:status ,
         // Default to 1 if no previous questions exist
       });
@@ -311,6 +316,8 @@ export const reject = mutation({
   handler: async (ctx, { topicId, qId, ansId, typeIds,qNote,aNote }) => {
     //change topic,ques,ans status.
     // I will get topicId, ansId, qId.
+
+    
     const topic = await ctx.db.get(topicId);
     if (topic?.status === "waiting") {
       await ctx.db.patch(topicId, { status: "rejected" });
@@ -344,66 +351,66 @@ export const reject = mutation({
   },
 });
 
-async function checkAndCreate(
-  ctx: MutationCtx,
-  id: Id<"Questions"> | Id<"Types"> | Id<"Topics"> | Id<"Answers"> | string,
-  label: "Questions" | "Types" | "Topics" | "Answers", // Ensure correct collection name
-) {
-  let ID = id; // Keep track of the final ID
-  const status = "waiting";
+// async function checkAndCreate(
+//   ctx: MutationCtx,
+//   id: Id<"Questions"> | Id<"Types"> | Id<"Topics"> | Id<"Answers"> | string,
+//   label: "Questions" | "Types" | "Topics" | "Answers", // Ensure correct collection name
+// ) {
+//   let ID = id; // Keep track of the final ID
+//   const status = "waiting";
 
-  if (label === "Questions") {
-    // if id="" create. 
-    try {
-      const checkQues = await ctx.db.get(id as Id<"Questions">);
-    } catch (error) {
-      console.error(`Error fetching Question with ID ${id}:`, error);
-      const lastQues = await ctx.db.query("Questions").order("desc").take(1);
-      ID = await ctx.db.insert("Questions", {
-        title: id,
-        q_no: lastQues.length > 0 ? (lastQues[0]?.q_no ?? 0) + 1 : 1,
-        status,
-        // Default to 1 if no previous questions exist
-      });
-    }
-  }
+//   if (label === "Questions") {
+//     // if id="" create. 
+//     try {
+//       const checkQues = await ctx.db.get(id as Id<"Questions">);
+//     } catch (error) {
+//       console.error(`Error fetching Question with ID ${id}:`, error);
+//       const lastQues = await ctx.db.query("Questions").order("desc").take(1);
+//       ID = await ctx.db.insert("Questions", {
+//         title: id,
+//         q_no: lastQues.length > 0 ? (lastQues[0]?.q_no ?? 0) + 1 : 1,
+//         status,
+//         // Default to 1 if no previous questions exist
+//       });
+//     }
+//   }
 
-  if (label === "Topics") {
-    try {
-      const checkTopic = await ctx.db.get(id as Id<"Topics">);
-      console.log(checkTopic, "checkTopic");
-    } catch (error) {
-      console.error(`Error fetching Topic with ID ${id}:`, error);
-      ID = await ctx.db.insert("Topics", { topic: id, status });
-    }
-  }
+//   if (label === "Topics") {
+//     try {
+//       const checkTopic = await ctx.db.get(id as Id<"Topics">);
+//       console.log(checkTopic, "checkTopic");
+//     } catch (error) {
+//       console.error(`Error fetching Topic with ID ${id}:`, error);
+//       ID = await ctx.db.insert("Topics", { topic: id, status });
+//     }
+//   }
 
-  if (label === "Types") {
-    try {
-      const checkType = await ctx.db.get(id as Id<"Types">);
-    } catch (error) {
-      console.error(`Error fetching Type with ID ${id}:`, error);
-      const allTypes = await ctx.db.query("Types").collect();
-      const greatestSortOrder = allTypes.reduce(
-        (max, s) => (s.sort_order > max ? s.sort_order : max),
-        0,
-      );
-      ID = await ctx.db.insert("Types", {
-        name: id,
-        sort_order: greatestSortOrder + 1,
-        status,
-      });
-    }
-  }
+//   if (label === "Types") {
+//     try {
+//       const checkType = await ctx.db.get(id as Id<"Types">);
+//     } catch (error) {
+//       console.error(`Error fetching Type with ID ${id}:`, error);
+//       const allTypes = await ctx.db.query("Types").collect();
+//       const greatestSortOrder = allTypes.reduce(
+//         (max, s) => (s.sort_order > max ? s.sort_order : max),
+//         0,
+//       );
+//       ID = await ctx.db.insert("Types", {
+//         name: id,
+//         sort_order: greatestSortOrder + 1,
+//         status,
+//       });
+//     }
+//   }
 
-  // if (label === "Answers") {
-  //   try {
-  //     await ctx.db.get(id as Id<"Answers">);
-  //   } catch (error) {
-  //     console.error(`Error fetching Answer with ID ${id}:`, error);
-  //     ID = await ctx.db.insert("Answers", { title: id });
-  //   }
-  // }
+//   // if (label === "Answers") {
+//   //   try {
+//   //     await ctx.db.get(id as Id<"Answers">);
+//   //   } catch (error) {
+//   //     console.error(`Error fetching Answer with ID ${id}:`, error);
+//   //     ID = await ctx.db.insert("Answers", { title: id });
+//   //   }
+//   // }
 
-  return ID; // Return the existing or newly created ID
-}
+//   return ID; // Return the existing or newly created ID
+// }

@@ -8,7 +8,7 @@ import { v } from "convex/values";
 // The schema provides more precise TypeScript types.
 export default defineSchema({
   Questions: defineTable({
-    q_no: v.optional(v.number()),
+    q_no: v.optional(v.string()),
     title: v.string(),
     status: v.union(
       v.literal("approved"),
