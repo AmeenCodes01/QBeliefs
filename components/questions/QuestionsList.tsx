@@ -9,11 +9,11 @@ import { useStore } from "@/lib/useStore";
 
 function QuestionsList({
   topicId,
+  search
 }: {
-  topicId: Id<"Topics"> }
+  topicId: Id<"Topics">, search:string }
 ) {
 
-  const [search, setSearch] = useState("");
   const [showIndex, setShowIndex]=useState<null|number>(0)
   console.log(showIndex,"showIndes")
   let filter = "all";
@@ -42,25 +42,10 @@ function QuestionsList({
 const displayQues = search ? filteredQues : qArr
   return (
     <div className="flex overflow-auto flex-col w-full ">
-      <div className="flex gap-4 mb-10">
-        <div className="flex-1 relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search questions..."
-            className="w-full bg-white pl-10 pr-4 py-2 border rounded-lg focus:outline-none "
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-       
-      </div>
+    
 
       {/* rows messed up with header, cols does not.  */}
-      <div className="grid md:grid-cols-1 border-2  md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
+      <div className="grid md:grid-cols-1   md:auto-cols-max gap-6 w-full  md:justify-normal items-center pb-4  ">
         {displayQues?.length !== 0
           ? displayQues?.map((q, i: number) => (
             
@@ -76,7 +61,9 @@ const displayQues = search ? filteredQues : qArr
            
                 
             ))
-          : null}
+          : <>
+          <span className="text-2xl text-gray-400">No Questions added yet</span>
+          </>}
       </div>
     </div>
   );
