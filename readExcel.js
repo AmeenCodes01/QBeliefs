@@ -13,7 +13,7 @@ async function main() {
 const   types = await client.query(api.types.get);
 const surahs = await client.query(api.surahs.get)
    const topics = await client.query(api.topics.get)
-   const workbook = XLSX.readFile('Aqeeda Qs Batch2 for Upload on 27-Apr-25.xlsx');
+   const workbook = XLSX.readFile('QuranicBelief Qs for Upload - 02May25 Batch 45 Qs for upload.xlsx');
    
    const sheetNames = workbook.SheetNames;
    //console.log("Sheet Names:", sheetNames);

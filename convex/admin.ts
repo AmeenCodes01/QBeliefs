@@ -45,7 +45,7 @@ export const create = mutation({
     
     let topicId = topic.id
     let quesId = question.id
-    const status = "approved"
+    const status = "waiting"
    //if topic or question change, we need to patch. 
     
     if(topic?.id !=="" && topic?.title!==""){
