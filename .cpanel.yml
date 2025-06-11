@@ -1,6 +1,6 @@
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/quranicbeliefs/public_html/
+    - export DEPLOYPATH=/home/quranicbeliefs/public_html/qb1/
     - /bin/cp -R * $DEPLOYPATH
     - cd $DEPLOYPATH
     - npm install
