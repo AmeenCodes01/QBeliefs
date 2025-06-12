@@ -1,0 +1,10 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/app/page": [
+      "static/media/font-s.p.c1809f97.ttf"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}

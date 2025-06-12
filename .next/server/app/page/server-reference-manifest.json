@@ -1,0 +1,16 @@
+{
+  "node": {
+    "0047fa3566577b8f1145237cf64ad6a206dbb881d8": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@convex-dev/auth/dist/nextjs/server/invalidateCache.js [app-rsc] (ecmascript)\" } [app-rsc] (ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

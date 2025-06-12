@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file://C%3A/Users/masaq/qbeliefs/app/admin/components/SignOut.tsx"],"sourcesContent":["\"use client\"\r\nimport { Button } from \"@/components/ui/button\";\r\nimport { useAuthActions } from \"@convex-dev/auth/react\";\r\n \r\nexport function SignOut() {\r\n  const { signOut } = useAuthActions();\r\n  return <Button variant=\"destructive\" className=\"bg-destructive w-[300px]\" onClick={() => void signOut()}>Sign out</Button>;\r\n} "],"names":[],"mappings":";;;;AACA;AACA;AAFA;;;;AAIO,SAAS;IACd,MAAM,EAAE,OAAO,EAAE,GAAG,CAAA,GAAA,iKAAA,CAAA,iBAAc,AAAD;IACjC,qBAAO,8OAAC,2HAAA,CAAA,SAAM;QAAC,SAAQ;QAAc,WAAU;QAA2B,SAAS,IAAM,KAAK;kBAAW;;;;;;AAC3G"}},
+    {"offset": {"line": 30, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

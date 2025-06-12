@@ -1,0 +1,21 @@
+/* [project]/app/myfont_a62d86a7.module.css [app-client] (css) */
+@font-face {
+  font-family: myFont;
+  src: url("../media/font-s.p.c1809f97.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: myFont Fallback;
+  src: local(Arial);
+  ascent-override: 128.59%;
+  descent-override: 58.57%;
+  line-gap-override: 0.0%;
+  size-adjust: 75.03%;
+}
+
+.myfont_a62d86a7-module__5ISAHa__className {
+  font-family: myFont, myFont Fallback;
+}
+
+/*# sourceMappingURL=app_myfont_a62d86a7_module_b52d8e.css.map*/

@@ -1,6 +1,13 @@
 {
-  "app": {},
-  "appUsingSizeAdjust": false,
+  "app": {
+    "[project]/app/page": [
+      "static/media/font-s.p.c1809f97.ttf"
+    ],
+    "[project]/app/admin/page": [
+      "static/media/font-s.p.c1809f97.ttf"
+    ]
+  },
+  "appUsingSizeAdjust": true,
   "pages": {},
   "pagesUsingSizeAdjust": false
 }

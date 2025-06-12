@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack://[project]/app/myfont_a62d86a7.module.css"],"sourcesContent":["@font-face {\n    font-family: 'myFont';\n    src: url('@vercel/turbopack-next/internal/font/local/font?{%22path%22:%22./font.ttf%22,%22preload%22:true,%22has_size_adjust%22:true}') format('truetype');\n    font-display: swap;\n    \n}\n\n@font-face {\n    font-family: 'myFont Fallback';\n    src: local(\"Arial\");\n    ascent-override: 128.59%;\ndescent-override: 58.57%;\nline-gap-override: 0.00%;\nsize-adjust: 75.03%;\n\n}\n\n.className {\n    font-family: 'myFont', 'myFont Fallback';\n    \n}\n\n"],"names":[],"mappings":"AAAA;;;;;;AAOA;;;;;;;;;AAUA"}},
+    {"offset": {"line": 19, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
