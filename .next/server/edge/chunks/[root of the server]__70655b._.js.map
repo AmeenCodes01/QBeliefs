@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 23, "column": 0}, "map": {"version":3,"sources":["turbopack://[project]/middleware.ts"],"sourcesContent":["import { convexAuthNextjsMiddleware } from \"@convex-dev/auth/nextjs/server\";\r\n \r\nexport default convexAuthNextjsMiddleware();\r\n \r\nexport const config = {\r\n  // The following matcher runs middleware on all routes\r\n  // except static assets.\r\n  matcher: [\"/((?!.*\\\\..*|_next).*)\", \"/\", \"/(api|trpc)(.*)\"],\r\n};"],"names":[],"mappings":";;;;AAAA;;uCAEe,CAAA,GAAA,4LAAA,CAAA,6BAA0B,AAAD;AAEjC,MAAM,SAAS;IACpB,sDAAsD;IACtD,wBAAwB;IACxB,SAAS;QAAC;QAA0B;QAAK;KAAkB;AAC7D"}},
+    {"offset": {"line": 39, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
